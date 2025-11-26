@@ -2,7 +2,7 @@
 title: Murder.Ai
 emoji: 🕵️🔥🤖🔪
 colorFrom: red
-colorTo: black
+colorTo: gray
 sdk: gradio
 sdk_version: 6.0.1
 app_file: app.py
