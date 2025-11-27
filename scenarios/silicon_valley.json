@@ -1,0 +1,132 @@
+{
+  "case_id": "A47",
+  "title": "The Silicon Valley Incident",
+  "difficulty": "Medium",
+  "victim": {
+    "name": "Marcus Chen",
+    "age": 42,
+    "occupation": "Tech CEO",
+    "time_of_death": "8:47 PM"
+  },
+  "suspects": [
+    {
+      "id": "suspect_1",
+      "name": "Sarah Johnson",
+      "role": "CFO",
+      "is_murderer": true,
+      "motive": "Embezzlement discovered",
+      "true_location": "Crime scene",
+      "alibi_story": "At home watching Netflix",
+      "phone_number": "+1-555-0101",
+      "bio": "Detail-oriented and ambitious. Has been with the company since day one."
+    },
+    {
+      "id": "suspect_2",
+      "name": "David Park",
+      "role": "Janitor",
+      "is_murderer": false,
+      "motive": "None",
+      "true_location": "2 blocks away",
+      "alibi_story": "Working late on 5th floor",
+      "phone_number": "+1-555-0102",
+      "bio": "Quiet and keeps to himself. Has a record for petty theft from 10 years ago."
+    },
+    {
+      "id": "suspect_3",
+      "name": "Emily Chen",
+      "role": "Victim's Sister",
+      "is_murderer": false,
+      "motive": "Inheritance dispute",
+      "true_location": "Restaurant downtown",
+      "alibi_story": "Dinner with friends",
+      "phone_number": "+1-555-0103",
+      "bio": "Emotional and protective of the family legacy. Argued with Marcus recently."
+    },
+    {
+      "id": "suspect_4",
+      "name": "Alex Rivera",
+      "role": "Competitor CEO",
+      "is_murderer": false,
+      "motive": "Corporate rivalry",
+      "true_location": "Airport lounge",
+      "alibi_story": "Catching a flight to NY",
+      "phone_number": "+1-555-0104",
+      "bio": "Ruthless businessman. Recently lost a major contract to Marcus's firm."
+    }
+  ],
+  "evidence": {
+    "location_data": {
+      "suspect_1_phone": {
+        "8:47 PM": {"lat": 37.7749, "lng": -122.4194, "location": "Crime scene"},
+        "8:50 PM": {"lat": 37.7750, "lng": -122.4200, "location": "0.1 mi away"}
+      },
+      "suspect_2_phone": {
+        "8:47 PM": {"lat": 37.7800, "lng": -122.4300, "location": "2 blocks away"}
+      },
+      "suspect_3_phone": {
+         "8:47 PM": {"lat": 37.7900, "lng": -122.4000, "location": "Downtown Restaurant"}
+      },
+      "suspect_4_phone": {
+         "8:47 PM": {"lat": 37.6213, "lng": -122.3790, "location": "SFO Airport"}
+      }
+    },
+    "footage_data": {
+      "10th_floor_camera": {
+        "8:45-8:50 PM": {
+          "visible_people": ["Person in black hoodie entering"],
+          "quality": "Grainy",
+          "key_frame": "8:47 PM - figure strikes victim with trophy"
+        }
+      },
+      "lobby_camera": {
+        "8:40-8:55 PM": {
+          "visible_people": ["Suspect 1 entering at 8:43", "Suspect 1 leaving at 8:52"],
+          "notes": "Suspect changed clothes, looks flustered"
+        }
+      }
+    },
+    "dna_evidence": {
+      "trophy_weapon": {
+        "primary_match": "suspect_1",
+        "confidence": "95%",
+        "notes": "Clear fingerprints found on the base"
+      },
+      "door_handle": {
+        "matches": ["suspect_1", "suspect_2", "victim"],
+        "notes": "Multiple people touched door recently"
+      }
+    },
+    "alibis": {
+      "suspect_1_alibi": {
+        "contact": "Nobody (claims was alone)",
+        "verifiable": false,
+        "truth": "Lying - was at crime scene"
+      },
+      "suspect_2_alibi": {
+        "contact": "+1-555-0199",
+        "contact_name": "Security Guard Tom",
+        "verifiable": true,
+        "truth": "Telling truth - saw him on 5th floor"
+      },
+       "suspect_3_alibi": {
+        "contact": "+1-555-0200",
+        "contact_name": "Waiter at La Casa",
+        "verifiable": true,
+        "truth": "Telling truth - bill was paid at 9:00 PM"
+      },
+       "suspect_4_alibi": {
+        "contact": "+1-555-0201",
+        "contact_name": "Airline Desk",
+        "verifiable": true,
+        "truth": "Telling truth - checked in at 8:30 PM"
+      }
+    }
+  },
+  "timeline": {
+    "8:30 PM": "Victim stays late working",
+    "8:43 PM": "Suspect 1 enters building",
+    "8:45 PM": "Suspect 2 seen on 5th floor",
+    "8:47 PM": "Murder occurs",
+    "8:52 PM": "Suspect 1 leaves building"
+  }
+}

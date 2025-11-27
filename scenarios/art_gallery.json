@@ -1,0 +1,101 @@
+{
+  "case_id": "C99",
+  "title": "The Gallery Heist Gone Wrong",
+  "difficulty": "Hard",
+  "victim": {
+    "name": "Vincent Shaw",
+    "age": 55,
+    "occupation": "Art Dealer",
+    "time_of_death": "10:00 PM"
+  },
+  "suspects": [
+    {
+      "id": "suspect_1",
+      "name": "Julian Thorne",
+      "role": "Assistant Curator",
+      "is_murderer": true,
+      "motive": "Theft of 'The Red Sunset'",
+      "true_location": "Gallery Wine Cellar",
+      "alibi_story": "Stocktaking in basement",
+      "phone_number": "+1-555-2101",
+      "bio": "Sophisticated but in debt. Has been eyeing the collection."
+    },
+    {
+      "id": "suspect_2",
+      "name": "Elena Rossi",
+      "role": "Artist",
+      "is_murderer": false,
+      "motive": "Contract dispute",
+      "true_location": "Main Hall",
+      "alibi_story": "Talking to guests",
+      "phone_number": "+1-555-2102",
+      "bio": "Passionate and volatile. Felt Vincent was cheating her."
+    },
+    {
+      "id": "suspect_3",
+      "name": "Arthur Pym",
+      "role": "Collector",
+      "is_murderer": false,
+      "motive": "Blackmail",
+      "true_location": "Sculpture Garden",
+      "alibi_story": "Smoking cigar",
+      "phone_number": "+1-555-2103",
+      "bio": "Wealthy and secretive. Had a secret history with Vincent."
+    },
+    {
+      "id": "suspect_4",
+      "name": "Maria Gonzales",
+      "role": "Caterer",
+      "is_murderer": false,
+      "motive": "None",
+      "true_location": "Kitchen",
+      "alibi_story": "Preparing hors d'oeuvres",
+      "phone_number": "+1-555-2104",
+      "bio": "Hardworking. Just there to do a job."
+    }
+  ],
+  "evidence": {
+    "location_data": {
+      "suspect_1_phone": {
+        "10:00 PM": {"lat": 51.5074, "lng": -0.1278, "location": "Gallery Office"}
+      },
+      "suspect_2_phone": {
+        "10:00 PM": {"lat": 51.5074, "lng": -0.1279, "location": "Gallery Main Hall"}
+      }
+    },
+    "footage_data": {
+      "office_cam": {
+        "9:50-10:10 PM": {
+          "visible_people": ["Vincent drinking wine", "Julian pouring more wine"],
+          "quality": "High",
+          "key_frame": "9:55 PM - Julian adds powder to glass"
+        }
+      }
+    },
+    "dna_evidence": {
+      "wine_glass": {
+        "primary_match": "suspect_1",
+        "confidence": "80%",
+        "notes": "Fingerprints of Julian on the stem"
+      },
+       "poison_vial": {
+        "primary_match": "suspect_1",
+        "confidence": "99%",
+        "notes": "Found in Julian's pocket"
+      }
+    },
+    "alibis": {
+      "suspect_1_alibi": {
+        "contact": "+1-555-2200",
+        "contact_name": "Maria (Caterer)",
+        "verifiable": true,
+        "truth": "Lying - Maria didn't see him"
+      }
+    }
+  },
+  "timeline": {
+    "9:55 PM": "Julian poisons wine",
+    "10:00 PM": "Vincent collapses",
+    "10:05 PM": "Julian calls 911 feigning panic"
+  }
+}

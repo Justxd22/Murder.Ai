@@ -13,3 +13,4 @@ tags:
   - building-mcp-track-creative
   - mcp-in-action-track-creative
 ---
+- Read `PLan.md`

@@ -1,0 +1,114 @@
+{
+  "case_id": "B12",
+  "title": "The Coffee Shop Murder",
+  "difficulty": "Easy",
+  "victim": {
+    "name": "Emma Rodriguez",
+    "age": 24,
+    "occupation": "Barista",
+    "time_of_death": "11:15 PM"
+  },
+  "suspects": [
+    {
+      "id": "suspect_1",
+      "name": "Liam O'Connor",
+      "role": "Ex-Boyfriend",
+      "is_murderer": true,
+      "motive": "Jealousy",
+      "true_location": "Coffee Shop Back Door",
+      "alibi_story": "Gaming at home",
+      "phone_number": "+1-555-1101",
+      "bio": "Possessive and recently dumped. Has been sending angry texts."
+    },
+    {
+      "id": "suspect_2",
+      "name": "Mark Stevens",
+      "role": "Manager",
+      "is_murderer": false,
+      "motive": "Financial dispute",
+      "true_location": "Bank deposit drop",
+      "alibi_story": "Depositing cash",
+      "phone_number": "+1-555-1102",
+      "bio": "Stressed about money. Owed Emma back pay."
+    },
+    {
+      "id": "suspect_3",
+      "name": "Chloe Kim",
+      "role": "Coworker",
+      "is_murderer": false,
+      "motive": "Promotion rivalry",
+      "true_location": "Gym",
+      "alibi_story": "Late night workout",
+      "phone_number": "+1-555-1103",
+      "bio": "Competitive and ambitious. Wanted the shift lead position."
+    },
+    {
+      "id": "suspect_4",
+      "name": "Regular Joe",
+      "role": "Customer",
+      "is_murderer": false,
+      "motive": "Obsession",
+      "true_location": "Bus stop across street",
+      "alibi_story": "Waiting for bus",
+      "phone_number": "+1-555-1104",
+      "bio": "Always there. Kind of creepy but harmless."
+    }
+  ],
+  "evidence": {
+    "location_data": {
+      "suspect_1_phone": {
+        "11:15 PM": {"lat": 40.7128, "lng": -74.0060, "location": "Coffee Shop Alley"}
+      },
+      "suspect_2_phone": {
+        "11:15 PM": {"lat": 40.7150, "lng": -74.0080, "location": "Night Deposit Box"}
+      },
+       "suspect_3_phone": {
+        "11:15 PM": {"lat": 40.7200, "lng": -74.0100, "location": "24h Gym"}
+      },
+       "suspect_4_phone": {
+        "11:15 PM": {"lat": 40.7129, "lng": -74.0059, "location": "Bus Stop"}
+      }
+    },
+    "footage_data": {
+      "kitchen_cam": {
+        "11:10-11:20 PM": {
+          "visible_people": ["Emma arguing with man in blue cap"],
+          "quality": "Good",
+          "key_frame": "11:15 PM - Man stabs Emma"
+        }
+      },
+      "alley_cam": {
+        "11:00-11:30 PM": {
+          "visible_people": ["Liam entering 11:05", "Liam running out 11:16"],
+          "notes": "Wearing blue cap"
+        }
+      }
+    },
+    "dna_evidence": {
+      "knife_handle": {
+        "primary_match": "suspect_1",
+        "confidence": "99%",
+        "notes": "Sweat and skin cells found"
+      }
+    },
+    "alibis": {
+      "suspect_1_alibi": {
+        "contact": "None",
+        "verifiable": false,
+        "truth": "Lying - claims gaming alone"
+      },
+      "suspect_2_alibi": {
+        "contact": "+1-555-1200",
+        "contact_name": "Bank CCTV",
+        "verifiable": true,
+        "truth": "Telling truth - footage confirms"
+      }
+    }
+  },
+  "timeline": {
+    "11:00 PM": "Shop closes",
+    "11:05 PM": "Liam enters via back door",
+    "11:15 PM": "Murder occurs",
+    "11:16 PM": "Liam flees"
+  }
+}

@@ -777,7 +777,7 @@ Deployment: HuggingFace Space
 
 ```yaml
 Frontend:
-  - Gradio 5.x (required)
+  - Gradio 6.x (required)
   - Custom HTML/CSS blocks for beautiful UI
   - JavaScript for animations
 
@@ -808,7 +808,7 @@ Deployment:
   - Modal for compute-heavy tasks (optional, for sponsor prize)
 
 Dependencies:
-  - gradio>=5.0
+  - gradio>=6.0
   - anthropic
   - openai  
   - google-generativeai
@@ -862,7 +862,7 @@ murder-ai/
 
 ## 🎨 **GRADIO UI ARCHITECTURE**
 
-### **Modern Gradio 5 Approach:**
+### **Modern Gradio 6 Approach:**
 
 ```python
 import gradio as gr
@@ -895,7 +895,7 @@ custom_css = """
 
 # Main Gradio Interface
 ```python
-with gr.Blocks(css=custom_css, theme=gr.themes.Noir()) as demo:
+with gr.Blocks() as demo:
     
     gr.Markdown("# 🕵️ MURDER.AI")
     
@@ -947,5 +947,8 @@ with gr.Blocks(css=custom_css, theme=gr.themes.Noir()) as demo:
         outputs=[game_state, chatbot, tool_output, evidence_board]
     )
 
-demo.launch()
+demo.launch(
+    theme=gr.themes.Noir(),
+    css=custom_css
+)
 ```

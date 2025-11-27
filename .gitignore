@@ -1,1 +1,5 @@
 .mddd
+.env
+__pycache__/
+.vscode/
+game/__pycache__/
