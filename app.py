@@ -37,9 +37,7 @@ def start_new_game_ui(difficulty):
     
     # Initial Chat
     initial_chat = [
-        ("System", f"CASE FILE LOADED: {game.scenario['title']}"),
-        ("System", f"Victim: {game.scenario['victim']['name']}"),
-        ("System", f"Time of Death: {game.scenario['victim']['time_of_death']}")
+        {"role": "assistant", "content": f"CASE FILE LOADED: {game.scenario['title']}\nVictim: {game.scenario['victim']['name']}\nTime of Death: {game.scenario['victim']['time_of_death']}"}
     ]
     
     return (
@@ -68,17 +66,10 @@ def submit_question(session_id, suspect_id, question, history):
     response = game.question_suspect(suspect_id, question)
     
     # Update chat
-    # Gradio chatbot format: list of [user_msg, bot_msg] or tuples. 
-    # But here we have a multi-actor chat. 
-    # Gradio's 'messages' type chatbot is better for this, but let's stick to standard
-    # tuple list (User, Bot) for simplicity, or just append to history.
-    # The plan said "Color-coded by speaker", implies standard Chatbot might be limiting
-    # if we want "Detective: ...", "Suspect: ...".
-    # We'll use (Speaker, Message) format and let Gradio handle it, 
-    # or format it as "Speaker: Message" in the bubble.
+    # Gradio 6 requires [{"role": "user", "content": "..."}, ...] format
     
-    history.append(("Detective", f"To {suspect_id}: {question}"))
-    history.append((suspect_id, response))
+    history.append({"role": "user", "content": f"**Detective to {suspect_id}:** {question}"})
+    history.append({"role": "assistant", "content": f"**{suspect_id}:** {response}"})
     
     return history, "" # Clear input
 
@@ -101,7 +92,7 @@ def use_tool_ui(session_id, tool_name, arg1, arg2, history):
     result = game.use_tool(tool_name, **kwargs)
     
     # Update History
-    history.append(("System", f"Used {tool_name}: {result}"))
+    history.append({"role": "assistant", "content": f"🔧 **System:** Used {tool_name}\nResult: {result}"})
     
     # Update Evidence Board
     ev_html = f"<h3>Case: {game.scenario['title']}</h3><p>Victim: {game.scenario['victim']['name']}</p><hr><h4>Evidence Revealed:</h4><ul>"
@@ -151,7 +142,6 @@ with gr.Blocks(title="Murder.Ai") as demo:
             chatbot = gr.Chatbot(
                 label="Investigation Log",
                 height=500,
-                type="messages" # Gradio 5/6 new format
             )
             
             with gr.Row():
@@ -222,7 +212,7 @@ with gr.Blocks(title="Murder.Ai") as demo:
     )
 
 demo.launch(
-    theme=gr.themes.Noir(),
+    theme=gr.themes.Monochrome(),
     css=custom_css,
     allowed_paths=["."]
 )
