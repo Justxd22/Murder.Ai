@@ -5,6 +5,9 @@ TRUTH: You are INNOCENT. You did not commit the crime.
 CASE DETAILS:
 - Victim: {victim_name}
 
+YOUR DETAILS:
+- Phone Number: {phone_number}
+
 YOUR ALIBI:
 - You were "{alibi_story}"
 - You were at {true_location}

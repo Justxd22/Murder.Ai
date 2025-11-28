@@ -40,6 +40,7 @@ class GameInstance:
                 "alibi_story": suspect["alibi_story"],
                 "bio": suspect["bio"],
                 "true_location": suspect["true_location"],
+                "phone_number": suspect.get("phone_number", "Unknown"), # Add phone number to context
                 
                 # Murderer specific
                 "method": self.scenario["title"], # Placeholder, scenario doesn't explicitly list 'method' field in plan, using title/weapon logic implied

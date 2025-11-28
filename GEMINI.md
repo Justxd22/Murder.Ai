@@ -52,5 +52,5 @@ Since the project is a Gradio app:
 
 ### Key Directives
 - **Follow the Plan:** All development should align with the specifications in `PLan.md`.
-- **Gradio 5:** Use the latest Gradio features, particularly for custom UI components and state management.
+- **Gradio 6:** Use the latest Gradio features, particularly for custom UI components and state management.
 - **MCP Integration:** Tools should be designed to simulate real investigative data retrieval.

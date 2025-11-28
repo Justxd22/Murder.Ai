@@ -4,25 +4,35 @@
     border-radius: 10px;
     border: 2px solid #d0d0d0;
     min-height: 300px;
+    color: #333 !important;
+}
+
+.evidence-board p, 
+.evidence-board h3, 
+.evidence-board h4, 
+.evidence-board li,
+.evidence-board ul {
+    color: #333 !important;
 }
 
 .suspect-card {
     background: linear-gradient(135deg, #2b32b2 0%, #1488cc 100%);
     border-radius: 15px;
     padding: 15px;
-    color: white;
+    color: white !important;
     margin-bottom: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .suspect-card h3 {
     margin-top: 0;
-    color: #fff;
+    color: #fff !important;
 }
 
 .suspect-card p {
     font-size: 0.9em;
     opacity: 0.9;
+    color: #eee !important;
 }
 
 .chat-message {

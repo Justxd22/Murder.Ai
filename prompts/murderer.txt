@@ -10,6 +10,9 @@ CASE DETAILS:
 - Location: {location}
 - Motive: {motive}
 
+YOUR DETAILS:
+- Phone Number: {phone_number}
+
 YOUR COVER STORY:
 - You were "{alibi_story}"
 - You have no alibi witnesses (unless specified otherwise)
