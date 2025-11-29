@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murder.Ai Detective Interface</title>
+    <link rel="stylesheet" href="../static/css/noir.css">
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-overlay">
+        <div class="loader-spinner"></div>
+        <div>INITIALIZING CASE FILE...</div>
+    </div>
+
+    <div id="game-container">
+        
+        <!-- Header -->
+        <div id="top-bar">
+            <div class="game-title">MURDER.AI</div>
+            <div class="stats-panel">
+                <span>ROUND: <span id="round-display">1/5</span></span>
+                <span>POINTS: <span id="points-display">10</span></span>
+            </div>
+        </div>
+
+        <!-- Left: Suspect Files -->
+        <div id="suspect-files">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Center: Evidence Board -->
+        <div id="evidence-board">
+            <!-- Red string SVG layer -->
+            <svg id="string-layer"></svg>
+            <!-- Evidence items populated by JS -->
+        </div>
+
+        <!-- Right: Tools -->
+        <div id="tools-panel">
+            <div class="tool-btn" id="tool-map">
+                <span class="tool-icon">🗺️</span>
+                <span>Location</span>
+            </div>
+            <div class="tool-btn" id="tool-camera">
+                <span class="tool-icon">📹</span>
+                <span>Footage</span>
+            </div>
+            <div class="tool-btn" id="tool-phone">
+                <span class="tool-icon">📞</span>
+                <span>Call Alibi</span>
+            </div>
+            <div class="tool-btn" id="tool-dna">
+                <span class="tool-icon">🔬</span>
+                <span>DNA Test</span>
+            </div>
+            <div class="tool-btn" id="tool-accuse" style="margin-top: auto; border-color: red; color: red;">
+                <span class="tool-icon">⚖️</span>
+                <span>ACCUSE</span>
+            </div>
+        </div>
+
+        <!-- Bottom: Chat / Log -->
+        <div id="chat-panel">
+            <div id="chat-log">
+                <div class="chat-message system">System initialized. Waiting for case data...</div>
+            </div>
+            <div id="chat-input-area">
+                <textarea id="chat-input" placeholder="Type your question here..."></textarea>
+                <button id="send-btn" class="send-btn">INTERROGATE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../static/js/game_logic.js"></script>
+</body>
+</html>

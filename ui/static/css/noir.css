@@ -1,0 +1,386 @@
+/* noir.css - Murder.Ai Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Roboto:wght@300;700&display=swap');
+
+:root {
+    --bg-color: #1a1a1a;
+    --desk-color: #2c1e12;
+    --paper-color: #f4e4bc;
+    --ink-color: #2a2a2a;
+    --accent-red: #8a0303;
+    --string-color: #a31515;
+    --highlight-glow: rgba(255, 255, 255, 0.1);
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    font-family: 'Roboto', sans-serif;
+    overflow: hidden;
+    user-select: none; /* Game-like feel */
+}
+
+#game-container {
+    display: grid;
+    grid-template-columns: 250px 1fr 250px;
+    grid-template-rows: 60px 1fr 250px;
+    height: 100vh;
+    width: 100vw;
+    background: 
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%),
+        repeating-linear-gradient(45deg, #2c1e12 0px, #251810 10px, #2c1e12 20px); /* Faux Wood */
+    box-shadow: inset 0 0 100px black;
+}
+
+/* --- Header --- */
+#top-bar {
+    grid-column: 1 / -1;
+    background: rgba(0, 0, 0, 0.8);
+    color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border-bottom: 2px solid #444;
+    font-family: 'Special Elite', monospace;
+    z-index: 10;
+}
+
+.game-title {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    color: var(--accent-red);
+    text-shadow: 0 0 5px var(--accent-red);
+}
+
+.stats-panel {
+    display: flex;
+    gap: 20px;
+    font-size: 1.1rem;
+}
+
+/* --- Left Panel: Suspect Files --- */
+#suspect-files {
+    grid-row: 2 / 3;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.folder-label {
+    font-family: 'Special Elite', cursive;
+    color: #aaa;
+    text-align: center;
+    border-bottom: 1px dashed #555;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.suspect-card {
+    background-color: var(--paper-color);
+    padding: 10px 10px 25px 10px; /* Polaroid bottom heavy */
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+    transform: rotate(-2deg);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+}
+
+.suspect-card:hover {
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.7);
+    z-index: 5;
+}
+
+.suspect-card:nth-child(even) {
+    transform: rotate(1deg);
+}
+
+.suspect-img {
+    width: 100%;
+    height: 120px;
+    background-color: #333;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    font-size: 2rem;
+    filter: sepia(0.8) contrast(1.2);
+}
+
+.suspect-name {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.1rem;
+    color: var(--ink-color);
+    text-align: center;
+}
+
+.suspect-phone {
+    font-size: 0.8rem;
+    text-align: center;
+    color: #555;
+    margin-top: 5px;
+    cursor: pointer;
+    border: 1px dashed #aaa;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.suspect-phone:hover {
+    background: rgba(0,0,0,0.05);
+    color: #000;
+}
+
+.status-stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    border: 3px solid var(--accent-red);
+    color: var(--accent-red);
+    font-weight: bold;
+    padding: 5px 10px;
+    font-family: 'Special Elite', cursive;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.suspect-card.guilty .status-stamp {
+    opacity: 1;
+    content: "GUILTY";
+}
+
+/* --- Center Panel: The Evidence Board --- */
+#evidence-board {
+    grid-row: 2 / 3;
+    grid-column: 2 / 3;
+    position: relative;
+    /* background-image: url('data:image/svg+xml;base64,PHN2Zy4uLz4='); NO SVG HERE, causes 404 if broken */
+    background-color: #c08848;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.6);
+    overflow: hidden; /* Or auto if we want scrolling */
+    cursor: crosshair;
+}
+
+.evidence-item {
+    position: absolute;
+    background: var(--paper-color);
+    padding: 10px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    max-width: 200px;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.9rem;
+    color: var(--ink-color);
+    border-top: 1px solid rgba(255,255,255,0.5);
+    transition: transform 0.2s;
+}
+
+.evidence-item.case-file {
+    background: #e8dcc8;
+    width: 250px;
+    max-width: 300px;
+    border: 1px solid #888;
+    padding: 15px;
+    z-index: 5;
+}
+
+.evidence-item:before {
+    /* Pushpin */
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
+    box-shadow: 1px 1px 2px black;
+}
+
+.evidence-item:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* Red String Implementation (SVG Overlay) */
+#string-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* --- Right Panel: Tools --- */
+#tools-panel {
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+.tool-btn {
+    background: #333;
+    border: 2px solid #555;
+    color: #ccc;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.tool-btn:hover {
+    background: #444;
+    border-color: #777;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.tool-btn:active {
+    transform: translateY(1px);
+}
+
+.tool-icon {
+    font-size: 1.5rem;
+}
+
+/* --- Bottom Panel: Chat / Log --- */
+#chat-panel {
+    grid-column: 1 / -1;
+    grid-row: 3 / 4;
+    background: #111;
+    border-top: 4px solid #333;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    font-family: 'Special Elite', monospace;
+}
+
+#chat-log {
+    padding: 20px;
+    overflow-y: auto;
+    color: #ddd;
+    background: 
+        linear-gradient(rgba(18, 16, 16, 0.95), rgba(18, 16, 16, 0.95));
+        /* Removed faulty SVG URL here too */
+}
+
+.chat-message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-left: 3px solid #555;
+    animation: typewriter 0.5s ease-out;
+}
+
+.chat-message.detective {
+    border-left-color: #4a9eff;
+    background: rgba(74, 158, 255, 0.05);
+}
+
+.chat-message.suspect {
+    border-left-color: #ff4a4a;
+    background: rgba(255, 74, 74, 0.05);
+}
+
+.chat-message.system {
+    border-left-color: #4aff4a;
+    font-style: italic;
+    color: #888;
+}
+
+#chat-input-area {
+    background: #222;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-left: 1px solid #333;
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border: 1px solid #444;
+    color: #0f0; /* Matrix style input */
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    resize: none;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #666;
+}
+
+button.send-btn {
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 10px;
+    font-family: 'Special Elite', cursive;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+button.send-btn:hover {
+    background: #b30000;
+}
+
+/* --- Animations --- */
+@keyframes typewriter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Loading Overlay --- */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Special Elite', cursive;
+    transition: opacity 1s;
+    pointer-events: none;
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #333;
+    border-top-color: var(--accent-red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
