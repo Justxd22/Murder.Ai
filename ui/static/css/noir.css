@@ -404,3 +404,106 @@ button.send-btn:hover {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* --- Tool Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--paper-color);
+    padding: 20px;
+    width: 400px;
+    border: 1px solid #555;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    font-family: 'Special Elite', cursive;
+    color: var(--ink-color);
+    transform: rotate(-1deg);
+}
+
+.modal-header {
+    font-size: 1.2rem;
+    border-bottom: 2px solid var(--ink-color);
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid #888;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    color: #000;
+    box-sizing: border-box;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-btn {
+    padding: 8px 15px;
+    border: 1px solid #333;
+    cursor: pointer;
+    font-family: 'Special Elite', cursive;
+    transition: all 0.2s;
+}
+
+.modal-btn.confirm {
+    background: var(--desk-color);
+    color: #eee;
+}
+
+.modal-btn.confirm:hover {
+    background: #444;
+}
+
+.modal-btn.cancel {
+    background: transparent;
+    color: #333;
+}
+
+.modal-btn.cancel:hover {
+    text-decoration: line-through;
+}
+
+/* --- Notification Toast --- */
+#notification-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-family: 'Special Elite', cursive;
+    z-index: 300;
+    transition: transform 0.3s ease-out;
+    border: 1px solid #555;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+#notification-toast.show {
+    transform: translateX(-50%) translateY(0);
+}

@@ -141,9 +141,20 @@ function renderSuspects() {
     }, 500);
 }
 
+// --- Modal & Notifications ---
+
+function showNotification(message) {
+    const toast = document.getElementById('notification-toast');
+    toast.innerText = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        alert("Copied: " + text);
+        showNotification("COPIED: " + text);
     }).catch(err => {
         console.error('Failed to copy: ', err);
     });
@@ -319,14 +330,47 @@ function makeDraggable(elmnt) {
 
 // --- Tools ---
 
+let pendingTool = null;
+
 function useTool(toolName) {
-    const input = prompt(`Enter input for ${toolName} (e.g., phone number):`);
-    if (input) {
-        sendAction('use_tool', { tool: toolName, input: input });
+    pendingTool = toolName;
+    const modal = document.getElementById('tool-modal');
+    const input = document.getElementById('modal-input');
+    const promptText = document.getElementById('modal-prompt-text');
+    
+    // Custom prompts
+    if (toolName === 'get_location') promptText.innerText = "Enter Target Phone Number:";
+    if (toolName === 'call_alibi') promptText.innerText = "Enter Witness Phone Number:";
+    if (toolName === 'get_dna_test') promptText.innerText = "Enter Evidence ID:";
+    if (toolName === 'get_footage') promptText.innerText = "Enter Camera Location:";
+    
+    input.value = '';
+    modal.classList.add('active');
+    input.focus();
+}
+
+function submitTool() {
+    const input = document.getElementById('modal-input');
+    const value = input.value.trim();
+    
+    if (value && pendingTool) {
+        sendAction('use_tool', { tool: pendingTool, input: value });
+        closeModal();
     }
 }
 
+function closeModal() {
+    document.getElementById('tool-modal').classList.remove('active');
+    pendingTool = null;
+}
+
 // --- Listeners ---
+
+document.getElementById('modal-cancel').onclick = closeModal;
+document.getElementById('modal-confirm').onclick = submitTool;
+document.getElementById('modal-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') submitTool();
+});
 
 document.getElementById('send-btn').addEventListener('click', sendUserMessage);
 document.getElementById('chat-input').addEventListener('keypress', function (e) {
