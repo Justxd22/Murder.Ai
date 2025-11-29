@@ -1,0 +1,5 @@
+- Highlight selected suspect card
+- make the rounds/points improve
+- pre-generate suspects cartoony potraits
+- find the texture missing 
+- remove scroll bars

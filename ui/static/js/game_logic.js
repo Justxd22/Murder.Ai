@@ -201,15 +201,50 @@ function sendUserMessage() {
 function addEvidenceToBoard(evidenceData, fixedX = null, fixedY = null) {
     const board = document.getElementById('evidence-board');
     
+    // Grouping Logic
+    if (evidenceData.suspect_id) {
+        const existingCard = document.querySelector(`.evidence-item[data-suspect-id="${evidenceData.suspect_id}"]`);
+        if (existingCard) {
+            const contentDiv = existingCard.querySelector('.evidence-content');
+            const newEntry = document.createElement('div');
+            newEntry.style.marginTop = "10px";
+            newEntry.style.borderTop = "1px dashed #888";
+            newEntry.style.paddingTop = "5px";
+            newEntry.innerHTML = `
+                <div style="font-size:0.9em; font-weight:bold; color:#555;">${evidenceData.title}</div>
+                ${evidenceData.html_content || evidenceData.description}
+            `;
+            contentDiv.appendChild(newEntry);
+            
+            // Flash effect to show update
+            existingCard.style.backgroundColor = "#fff";
+            setTimeout(() => existingCard.style.backgroundColor = "var(--paper-color)", 300);
+            return;
+        }
+    }
+
     const item = document.createElement('div');
     item.className = 'evidence-item';
+    if (evidenceData.suspect_id) {
+        item.dataset.suspectId = evidenceData.suspect_id;
+    }
+
     if (evidenceData.type === 'file') {
         item.classList.add('case-file');
         item.innerHTML = evidenceData.description;
     } else {
+        // Standard Card Format
+        let header = evidenceData.title || "Evidence";
+        if (evidenceData.suspect_name) {
+            header = `📌 ${evidenceData.suspect_name}`;
+        }
+        
         item.innerHTML = `
-            <strong>${evidenceData.title || "Evidence"}</strong><br>
-            ${evidenceData.description || "No details."}
+            <div style="border-bottom: 2px solid var(--ink-color); margin-bottom: 5px; font-weight: bold;">${header}</div>
+            <div class="evidence-content">
+                ${evidenceData.suspect_name ? `<div style="font-size:0.9em; font-weight:bold; color:#555;">${evidenceData.title}</div>` : ''}
+                ${evidenceData.html_content || evidenceData.description}
+            </div>
         `;
     }
     
@@ -220,8 +255,8 @@ function addEvidenceToBoard(evidenceData, fixedX = null, fixedY = null) {
         y = fixedY;
         item.style.transform = 'rotate(-2deg)'; // Slight tilt for files
     } else {
-        x = Math.floor(Math.random() * (board.clientWidth - 200));
-        y = Math.floor(Math.random() * (board.clientHeight - 100));
+        x = Math.floor(Math.random() * (board.clientWidth - 250));
+        y = Math.floor(Math.random() * (board.clientHeight - 150));
         item.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
     }
     

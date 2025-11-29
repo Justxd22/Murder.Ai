@@ -97,19 +97,17 @@ class GameSession:
             kwargs = {}
             if tool_name == "get_location":
                 kwargs = {"phone_number": arg}
-            elif tool_name == "get_footage":
-                kwargs = {"location": arg}
             elif tool_name == "call_alibi":
                 kwargs = {"phone_number": arg}
             elif tool_name == "get_dna_test":
                 kwargs = {"evidence_id": arg}
+            elif tool_name == "get_footage":
+                kwargs = {"location": arg}
                 
             result = self.game.use_tool(tool_name, **kwargs)
             
-            evidence_data = {
-                "title": f"Tool: {tool_name}",
-                "description": str(result)
-            }
+            # Format the result nicely
+            evidence_data = format_tool_response(tool_name, arg, result, self.game.scenario)
             
             return {
                 "action": "add_evidence",
@@ -117,6 +115,98 @@ class GameSession:
             }
 
         return None
+
+def format_tool_response(tool_name, arg, result, scenario):
+    """Formats tool output into HTML and finds associated suspect."""
+    suspect_id = None
+    suspect_name = None
+    html = ""
+    title = f"Tool: {tool_name}"
+    
+    # Helpers to find suspect
+    def find_by_phone(phone):
+        clean_input = "".join(filter(str.isdigit, str(phone)))
+        for s in scenario["suspects"]:
+            s_phone = "".join(filter(str.isdigit, str(s.get("phone_number", ""))))
+            if clean_input and s_phone.endswith(clean_input):
+                return s
+        return None
+
+    def find_by_name(name):
+        for s in scenario["suspects"]:
+            if s["name"].lower() == name.lower():
+                return s
+        return None
+
+    # Logic per tool
+    if tool_name == "get_location":
+        suspect = find_by_phone(arg)
+        if suspect:
+            suspect_id = suspect["id"]
+            suspect_name = suspect["name"]
+            title = f"📍 Location Data"
+        
+        if "history" in result:
+            html += "<ul>"
+            for entry in result["history"]:
+                html += f"<li>{entry}</li>"
+            html += "</ul>"
+        elif "description" in result:
+            html += f"<div><strong>Time:</strong> {result.get('timestamp')}</div>"
+            html += f"<div><strong>Loc:</strong> {result.get('description')}</div>"
+        elif "error" in result:
+            html += f"<div style='color:red'>{result['error']}</div>"
+        else:
+            html += str(result)
+
+    elif tool_name == "call_alibi":
+        suspect = find_by_phone(arg)
+        if suspect:
+            suspect_id = suspect["id"]
+            suspect_name = suspect["name"]
+            title = f"📞 Alibi Check"
+            
+        if "error" in result:
+            html += f"<div style='color:red'>{result['error']}</div>"
+        else:
+            html += f"<div><strong>Contact:</strong> {result.get('contact_name')}</div>"
+            html += f"<div style='margin-top:5px; font-style:italic;'>\"{result.get('response')}\"</div>"
+            html += f"<div style='font-size:0.8em; color:#555'>Confidence: {result.get('confidence')}</div>"
+
+    elif tool_name == "get_dna_test":
+        title = "🧬 DNA Result"
+        if "primary_match" in result and result["primary_match"] != "Unknown":
+            suspect = find_by_name(result["primary_match"])
+            if suspect:
+                suspect_id = suspect["id"]
+                suspect_name = suspect["name"]
+        
+        if "error" in result:
+            html += f"<div style='color:red'>{result['error']}</div>"
+        else:
+            html += f"<div><strong>Match:</strong> {result.get('primary_match')}</div>"
+            html += f"<div><strong>Confidence:</strong> {result.get('confidence')}</div>"
+            html += f"<div><strong>Notes:</strong> {result.get('notes')}</div>"
+
+    elif tool_name == "get_footage":
+        title = "📹 Security Footage"
+        if "error" in result:
+            html += f"<div style='color:red'>{result['error']}</div>"
+        else:
+            html += f"<div><strong>Cam:</strong> {result.get('location')}</div>"
+            html += f"<div><strong>Time:</strong> {result.get('time_range')}</div>"
+            html += f"<div><strong>Visible:</strong> {', '.join(result.get('visible_people', []))}</div>"
+            html += f"<div><strong>Detail:</strong> {result.get('key_details')}</div>"
+
+    else:
+        html = str(result)
+
+    return {
+        "title": title,
+        "html_content": html,
+        "suspect_id": suspect_id,
+        "suspect_name": suspect_name
+    }
 
 session = GameSession()
 
