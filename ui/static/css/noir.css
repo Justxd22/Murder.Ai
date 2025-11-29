@@ -72,6 +72,13 @@ body, html {
     gap: 15px;
     overflow-y: auto;
     border-right: 1px solid rgba(255,255,255,0.1);
+    /* Hide Scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+}
+
+#suspect-files::-webkit-scrollbar { 
+    display: none;  /* Chrome/Safari */
 }
 
 .folder-label {
@@ -101,6 +108,13 @@ body, html {
 
 .suspect-card:nth-child(even) {
     transform: rotate(1deg);
+}
+
+.suspect-card.selected {
+    border: 2px solid red;
+    transform: scale(1.05) rotate(0deg);
+    box-shadow: 0 0 29px rgb(221 9 9);
+    z-index: 10;
 }
 
 .suspect-img {
@@ -168,30 +182,36 @@ body, html {
     /* background-image: url('data:image/svg+xml;base64,PHN2Zy4uLz4='); NO SVG HERE, causes 404 if broken */
     background-color: #c08848;
     box-shadow: inset 0 0 50px rgba(0,0,0,0.6);
-    overflow: hidden; /* Or auto if we want scrolling */
+    
+    /* Flex Layout for Auto-Spawning */
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto; /* Allow scrolling if board fills */
+    
     cursor: crosshair;
 }
 
 .evidence-item {
-    position: absolute;
+    position: relative; /* Default to relative for flow */
     background: var(--paper-color);
     padding: 10px;
     box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-    max-width: 200px;
+    width: 250px; /* Fixed width for grid */
+    height: fit-content;
     font-family: 'Special Elite', cursive;
     font-size: 0.9rem;
     color: var(--ink-color);
     border-top: 1px solid rgba(255,255,255,0.5);
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 10px;
 }
 
-.evidence-item.case-file {
-    background: #e8dcc8;
-    width: 250px;
-    max-width: 300px;
-    border: 1px solid #888;
-    padding: 15px;
-    z-index: 5;
+.evidence-item.absolute-positioned {
+    position: absolute; /* Class to switch to absolute when dragging */
+    z-index: 100;
 }
 
 .evidence-item:before {

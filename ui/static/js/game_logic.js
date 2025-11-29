@@ -7,7 +7,8 @@ let gameState = {
     suspects: [],
     evidence: [],
     chatLog: [],
-    currentSuspect: null
+    currentSuspect: null,
+    nextEvidenceSlot: 0 // Track grid position for new cards
 };
 
 // --- Bridge: Communication with Parent (Python/Gradio) ---
@@ -133,6 +134,11 @@ function renderSuspects() {
         
         container.appendChild(card);
     });
+    
+    // Auto-scroll slightly to hint at overflow
+    setTimeout(() => {
+        container.scrollTop = 40;
+    }, 500);
 }
 
 function copyToClipboard(text) {
@@ -149,7 +155,11 @@ function selectSuspect(suspectId) {
     
     // Highlight visual
     document.querySelectorAll('.suspect-card').forEach(el => {
-        el.style.border = el.dataset.id === suspectId ? '2px solid red' : 'none';
+        if (el.dataset.id === suspectId) {
+            el.classList.add('selected');
+        } else {
+            el.classList.remove('selected');
+        }
     });
     
     addChatMessage('system', `Selected suspect: ${suspect.name}. You may now question them.`);
@@ -198,7 +208,7 @@ function sendUserMessage() {
 
 // --- UI Rendering: Evidence Board ---
 
-function addEvidenceToBoard(evidenceData, fixedX = null, fixedY = null) {
+function addEvidenceToBoard(evidenceData) {
     const board = document.getElementById('evidence-board');
     
     // Grouping Logic
@@ -216,15 +226,19 @@ function addEvidenceToBoard(evidenceData, fixedX = null, fixedY = null) {
             `;
             contentDiv.appendChild(newEntry);
             
-            // Flash effect to show update
+            // Flash effect
             existingCard.style.backgroundColor = "#fff";
             setTimeout(() => existingCard.style.backgroundColor = "var(--paper-color)", 300);
+            
+            // If card was absolute (dragged), leave it. If relative (grid), it grows in flow.
             return;
         }
     }
 
     const item = document.createElement('div');
     item.className = 'evidence-item';
+    item.style.transform = `rotate(${Math.random() * 4 - 2}deg)`; // Slight random tilt
+    
     if (evidenceData.suspect_id) {
         item.dataset.suspectId = evidenceData.suspect_id;
     }
@@ -248,22 +262,7 @@ function addEvidenceToBoard(evidenceData, fixedX = null, fixedY = null) {
         `;
     }
     
-    // Placement
-    let x, y;
-    if (fixedX !== null && fixedY !== null) {
-        x = fixedX;
-        y = fixedY;
-        item.style.transform = 'rotate(-2deg)'; // Slight tilt for files
-    } else {
-        x = Math.floor(Math.random() * (board.clientWidth - 250));
-        y = Math.floor(Math.random() * (board.clientHeight - 150));
-        item.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
-    }
-    
-    item.style.left = x + 'px';
-    item.style.top = y + 'px';
-    
-    // Make draggable (simple implementation)
+    // No manual x/y placement. CSS Flexbox handles it.
     makeDraggable(item);
     
     board.appendChild(item);
@@ -278,6 +277,20 @@ function makeDraggable(elmnt) {
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
+        
+        // If element is still relative (in grid), snap it to absolute at current position
+        if (window.getComputedStyle(elmnt).position !== 'absolute') {
+            const rect = elmnt.getBoundingClientRect();
+            const parentRect = elmnt.parentElement.getBoundingClientRect();
+            
+            elmnt.style.position = 'absolute';
+            elmnt.classList.add('absolute-positioned');
+            elmnt.style.left = (rect.left - parentRect.left + elmnt.parentElement.scrollLeft) + 'px';
+            elmnt.style.top = (rect.top - parentRect.top + elmnt.parentElement.scrollTop) + 'px';
+            elmnt.style.width = rect.width + 'px'; // Maintain width
+            elmnt.style.margin = '0'; // Remove flex gap margins
+        }
+
         pos3 = e.clientX;
         pos4 = e.clientY;
         document.onmouseup = closeDragElement;
