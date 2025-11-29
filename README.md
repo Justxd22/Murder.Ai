@@ -8,7 +8,6 @@ sdk_version: 6.0.1
 app_file: app.py
 pinned: false
 license: gpl-3.0
-runtime: docker
 short_description: Even AI has something to hide
 tags:
   - building-mcp-track-creative
