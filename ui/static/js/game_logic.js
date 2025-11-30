@@ -56,6 +56,9 @@ function handleServerMessage(message) {
         case 'add_evidence':
             addEvidenceToBoard(data);
             break;
+        case 'tool_error':
+            showNotification("❌ " + data.message);
+            break;
         case 'update_status':
             updateStatus(data);
             break;
@@ -223,27 +226,34 @@ function addEvidenceToBoard(evidenceData) {
     const board = document.getElementById('evidence-board');
     
     // Grouping Logic
+    let targetCard = null;
+    
     if (evidenceData.suspect_id) {
-        const existingCard = document.querySelector(`.evidence-item[data-suspect-id="${evidenceData.suspect_id}"]`);
-        if (existingCard) {
-            const contentDiv = existingCard.querySelector('.evidence-content');
-            const newEntry = document.createElement('div');
-            newEntry.style.marginTop = "10px";
-            newEntry.style.borderTop = "1px dashed #888";
-            newEntry.style.paddingTop = "5px";
-            newEntry.innerHTML = `
-                <div style="font-size:0.9em; font-weight:bold; color:#555;">${evidenceData.title}</div>
-                ${evidenceData.html_content || evidenceData.description}
-            `;
-            contentDiv.appendChild(newEntry);
-            
-            // Flash effect
-            existingCard.style.backgroundColor = "#fff";
-            setTimeout(() => existingCard.style.backgroundColor = "var(--paper-color)", 300);
-            
-            // If card was absolute (dragged), leave it. If relative (grid), it grows in flow.
-            return;
-        }
+        // Per-suspect evidence
+        targetCard = document.querySelector(`.evidence-item[data-suspect-id="${evidenceData.suspect_id}"]`);
+    } else if (evidenceData.type !== 'file') {
+        // General evidence (e.g. footage) -> goes to Case File
+        targetCard = document.querySelector(`.evidence-item[data-case-file="true"]`);
+    }
+
+    if (targetCard) {
+        const contentDiv = targetCard.querySelector('.evidence-content') || targetCard; // Case file might not have .evidence-content wrapper
+        
+        const newEntry = document.createElement('div');
+        newEntry.style.marginTop = "10px";
+        newEntry.style.borderTop = "1px dashed #888";
+        newEntry.style.paddingTop = "5px";
+        newEntry.innerHTML = `
+            <div style="font-size:0.9em; font-weight:bold; color:#555;">${evidenceData.title}</div>
+            ${evidenceData.html_content || evidenceData.description}
+        `;
+        contentDiv.appendChild(newEntry);
+        
+        // Flash effect
+        targetCard.style.backgroundColor = "#fff";
+        setTimeout(() => targetCard.style.backgroundColor = evidenceData.suspect_id ? "var(--paper-color)" : "#e8dcc8", 300);
+        
+        return;
     }
 
     const item = document.createElement('div');
@@ -256,6 +266,7 @@ function addEvidenceToBoard(evidenceData) {
 
     if (evidenceData.type === 'file') {
         item.classList.add('case-file');
+        item.dataset.caseFile = "true";
         item.innerHTML = evidenceData.description;
     } else {
         // Standard Card Format

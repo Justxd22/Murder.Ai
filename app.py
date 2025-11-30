@@ -106,6 +106,12 @@ class GameSession:
                 
             result = self.game.use_tool(tool_name, **kwargs)
             
+            if "error" in result:
+                return {
+                    "action": "tool_error",
+                    "data": {"message": result["error"]}
+                }
+            
             # Format the result nicely
             evidence_data = format_tool_response(tool_name, arg, result, self.game.scenario)
             
