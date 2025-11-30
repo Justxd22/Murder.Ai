@@ -1,0 +1,15 @@
+[
+    {"id": "suspect_10.png", "gender": "male", "archetype": "detective"},
+    {"id": "suspect_11.png", "gender": "female", "archetype": "socialite"},
+    {"id": "suspect_9.png", "gender": "male", "archetype": "socialite"},
+    {"id": "suspect_3.png", "gender": "female", "archetype": "executive"},
+    {"id": "suspect_5.png", "gender": "male", "archetype": "executive"},
+    {"id": "suspect_4.png", "gender": "female", "archetype": "artist"},
+    {"id": "suspect_1.png", "gender": "male", "archetype": "artist"},
+    {"id": "suspect_7.png", "gender": "male", "archetype": "worker"},
+    {"id": "suspect_2.png", "gender": "female", "archetype": "worker"},
+    {"id": "suspect_6.png", "gender": "male", "archetype": "criminal"},
+    {"id": "suspect_8.png", "gender": "female", "archetype": "criminal"},
+    {"id": "suspect_12.png", "gender": "female", "archetype": "customer"},
+    {"id": "suspect_13.png", "gender": "male", "archetype": "customer"}
+]

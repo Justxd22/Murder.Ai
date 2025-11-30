@@ -11,7 +11,8 @@ let gameState = {
     nextEvidenceSlot: 0, // Track grid position for new cards
     availableCameras: [],
     dnaMap: {},
-    unlockedEvidence: []
+    unlockedEvidence: [],
+    imageMetadata: []
 };
 
 // --- Bridge: Communication with Parent (Python/Gradio) ---
@@ -114,7 +115,19 @@ function updateStatus(data) {
 
 function initializeGame(data) {
     gameState = data;
-    renderSuspects();
+    
+    // Fetch image metadata then render
+    fetch('/static/assets/suspects/metadata.json')
+        .then(res => res.json())
+        .then(metadata => {
+            gameState.imageMetadata = metadata;
+            renderSuspects();
+        })
+        .catch(err => {
+            console.error("Failed to load image metadata:", err);
+            renderSuspects(); // Fallback
+        });
+
     document.getElementById('loading-overlay').style.opacity = 0;
     setTimeout(() => {
         document.getElementById('loading-overlay').style.display = 'none';
@@ -244,7 +257,7 @@ function renderSuspects() {
     
     if (!gameState.scenario || !gameState.scenario.suspects) return;
 
-    gameState.scenario.suspects.forEach(suspect => {
+    gameState.scenario.suspects.forEach((suspect, index) => {
         const card = document.createElement('div');
         card.className = 'suspect-card';
         card.dataset.id = suspect.id;
@@ -253,8 +266,47 @@ function renderSuspects() {
         // Placeholder Avatar (Initials)
         const initials = suspect.name.split(' ').map(n => n[0]).join('');
         
+        // Select Image based on Gender & Archetype
+        let imgFilename = `suspect_${(index % 8) + 1}.jpg`; // Default fallback
+        
+        if (gameState.imageMetadata && gameState.imageMetadata.length > 0 && suspect.gender) {
+            // 1. Filter by Gender
+            const genderMatches = gameState.imageMetadata.filter(img => img.gender === suspect.gender.toLowerCase());
+            
+            if (genderMatches.length > 0) {
+                // 2. Try to match Archetype
+                const role = suspect.role.toLowerCase();
+                let targetArchetype = "detective"; // default
+                
+                if (role.includes("ceo") || role.includes("cfo") || role.includes("manager") || role.includes("dealer")) targetArchetype = "executive";
+                else if (role.includes("janitor") || role.includes("chef") || role.includes("caterer")) targetArchetype = "worker";
+                else if (role.includes("artist") || role.includes("curator")) targetArchetype = "artist";
+                else if (role.includes("heir") || role.includes("collector") || role.includes("sister") || role.includes("socialite")) targetArchetype = "socialite";
+                else if (role.includes("ex-")) targetArchetype = "criminal";
+                else if (role.includes("customer")) targetArchetype = "customer"; // Rough/casual look
+                
+                const archetypeMatches = genderMatches.filter(img => img.archetype === targetArchetype);
+                
+                // Use archetype matches if available, otherwise use all gender matches
+                const pool = archetypeMatches.length > 0 ? archetypeMatches : genderMatches;
+                
+                // Deterministic pick based on name
+                let hash = 0;
+                for (let i = 0; i < suspect.name.length; i++) {
+                    hash = ((hash << 5) - hash) + suspect.name.charCodeAt(i);
+                    hash |= 0; 
+                }
+                const selected = pool[Math.abs(hash) % pool.length];
+                imgFilename = selected.id;
+            }
+        }
+        
         card.innerHTML = `
-            <div class="suspect-img">${initials}</div>
+            <div class="suspect-img">
+                <img src="/static/assets/suspects/${imgFilename}" 
+                     style="width:100%; height:100%; object-fit:cover; display:block;" 
+                     onerror="this.style.display='none'; this.parentElement.innerText='${initials}'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center';">
+            </div>
             <div class="suspect-name">${suspect.name}</div>
             <div class="suspect-role">${suspect.role}</div>
             <div class="suspect-phone" title="Click to copy" onclick="event.stopPropagation(); copyToClipboard('${suspect.phone_number}')">
