@@ -518,7 +518,7 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
     gr.Markdown("### 🎥 How to Play (Demo)")
     gr.HTML('<iframe width="100%" height="400" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>')
         
-    gr.Markdown("# 🛠️ Try MCP Tools Directly")
+    gr.Markdown("# 🛠️ Try MCP Tools Directly (Click Open Case Files first)")
     gr.Markdown("*Note: Start a game first to populate these tools.*")
     
     with gr.Tabs():
