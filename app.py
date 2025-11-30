@@ -57,9 +57,13 @@ class GameSession:
     def __init__(self):
         self.session_id = None
         self.game = None
+        self.voice_enabled = False
+        self.game_mode = "interactive"
 
-    def start(self, difficulty="medium"):
+    def start(self, difficulty="medium", mode="interactive", voice=True):
         self.session_id, self.game = game_engine.start_game(difficulty)
+        self.voice_enabled = voice
+        self.game_mode = mode
         return self._get_init_data()
 
     def _get_init_data(self):
@@ -81,7 +85,8 @@ class GameSession:
                 "points": self.game.points,
                 "available_cameras": cameras,
                 "dna_map": dna_map,
-                "unlocked_evidence": self.game.unlocked_evidence
+                "unlocked_evidence": self.game.unlocked_evidence,
+                "mode": self.game_mode
             }
         }
 
@@ -105,6 +110,46 @@ class GameSession:
         
         if not self.game:
             return None
+
+        if action == "ai_step":
+            step_data = self.game.run_ai_step()
+            
+            # Format result for frontend
+            # We need to map the AI's internal result to frontend actions
+            actions = []
+            
+            # 1. Thought Bubble
+            actions.append({
+                "action": "ai_thought",
+                "data": {"thought": step_data["thought"]}
+            })
+            
+            res = step_data["result"]
+            res_type = step_data["action"] # use_tool, chat, accuse
+            
+            if res_type == "use_tool":
+                # We need to construct the same evidence payload as handle_input
+                tool_name = step_data["result"].get("location") # Wait, result of use_tool is the raw dict
+                # I need the tool name from decision
+                # Re-running logic here is messy.
+                # Better: run_ai_step should return enough info.
+                # It returns "result" which is the output of use_tool.
+                # But we don't know which tool it was easily unless we parse "action" or store it.
+                
+                # In run_ai_step I did:
+                # tool_name = decision.get("tool_name")
+                # kwargs = decision.get("args", {})
+                
+                # Let's update run_ai_step to include tool_name in result wrapper?
+                # No, let's just infer or update run_ai_step.
+                # Actually, the loop in JS will call this.
+                # I'll handle formatting here.
+                pass 
+                
+            return {
+                "action": "ai_step_result",
+                "data": step_data 
+            }
 
         if action == "select_suspect":
             return None 
@@ -133,7 +178,7 @@ class GameSession:
             response = self.game.question_suspect(suspect_id, message)
             
             suspect = next((s for s in self.game.scenario["suspects"] if s["id"] == suspect_id), None)
-            suspect_name = suspect["name"] if suspect else "Suspect"
+            suspect_name = next((s["name"] for s in self.game.scenario["suspects"] if s["id"] == suspect_id), "Suspect")
             
             # Clean text for ElevenLabs
             cleaned_response = response
@@ -151,7 +196,8 @@ class GameSession:
 
             # Generate Audio
             audio_b64 = None
-            if suspect and "voice_id" in suspect and cleaned_response: # Only generate if there's text left
+            # Check Voice Enabled
+            if self.voice_enabled and suspect and "voice_id" in suspect and cleaned_response:
                 audio_bytes = self.game.voice_manager.generate_audio(cleaned_response, suspect["voice_id"])
                 if audio_bytes:
                     audio_b64 = "data:audio/mpeg;base64," + base64.b64encode(audio_bytes).decode('utf-8')
@@ -161,7 +207,7 @@ class GameSession:
                 "data": {
                     "role": "suspect",
                     "name": suspect_name,
-                    "content": response, # Keep original response for display
+                    "content": response,
                     "audio": audio_b64
                 }
             }
@@ -379,12 +425,14 @@ def get_game_iframe():
     """
     return iframe
 
-def start_game_from_ui(case_name):
+def start_game_from_ui(case_name, mode, voice):
     difficulty = "medium"
     if "Coffee" in case_name: difficulty = "easy"
     if "Gallery" in case_name: difficulty = "hard"
     
-    init_data = session.start(difficulty)
+    mode_slug = "spectator" if "Spectator" in mode else "interactive"
+    
+    init_data = session.start(difficulty, mode_slug, voice)
     
     # Return visible updates
     return (
@@ -407,16 +455,25 @@ footer { display: none !important; }
 with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
     gr.HTML(f"<style>{css}</style>")
     
-    # Case Selector (Visible Initially)
-    with gr.Row(elem_id="case-selector-row", visible=True) as selector_row:
+    # --- Initial Setup Screen ---
+    with gr.Row(elem_id="setup-container", visible=True) as setup_col:
         with gr.Column():
-            gr.Markdown("# 🕵️ MURDER.AI - CASE FILES")
+            gr.Markdown("# 🕵️ MURDER.AI")
+        
+            gr.Markdown("### 1. Select Case File")
             case_dropdown = gr.Dropdown(
                 choices=["The Silicon Valley Incident (Medium)", "The Coffee Shop Murder (Easy)", "The Gallery Heist (Hard)"],
                 value="The Silicon Valley Incident (Medium)",
-                label="Select Case to Investigate"
+                show_label=False
             )
-            start_btn = gr.Button("📂 OPEN CASE FILE", variant="primary")
+
+            gr.Markdown("### 2. Game Configuration")
+            with gr.Row():
+                game_mode = gr.Radio(["Interactive", "AI Spectator (Beta)"], value="Interactive", label="Game Mode")
+                voice_toggle = gr.Checkbox(value=True, label="Enable Voice (ElevenLabs)")
+
+            gr.Markdown("### 3. Investigation")
+            start_btn = gr.Button("📂 OPEN CASE FILE", variant="primary", size="lg")
 
     # Game Frame (Hidden Initially)
     with gr.Group(visible=False, elem_id="game-frame-container") as game_group:
@@ -424,6 +481,7 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
     
     bridge_input = gr.Textbox(elem_id="bridge-input", visible=True)
     bridge_output = gr.Textbox(elem_id="bridge-output", visible=True)
+    log_input = gr.Textbox(elem_id="log-input", visible=True) # Input from JS for logs
     
     # Log Box
     with gr.Accordion("System Logs (MCP Traffic)", open=False):
@@ -450,8 +508,8 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
     # Start Game Event
     start_btn.click(
         fn=start_game_from_ui,
-        inputs=[case_dropdown],
-        outputs=[selector_row, game_group, bridge_output]
+        inputs=[case_dropdown, game_mode, voice_toggle],
+        outputs=[setup_col, game_group, bridge_output]
     )
     
     # Bridge Logic with Logging (Legacy/Fallback)

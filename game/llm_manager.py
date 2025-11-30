@@ -93,3 +93,15 @@ class LLMManager:
         if agent:
             return agent.generate_response(user_input)
         return "Error: Agent not found."
+
+    def get_response_raw(self, prompt):
+        """Stateless generation for AI Detective logic."""
+        if not API_KEY:
+            return '{"thought": "Mock thought", "action": "chat", "suspect_id": "suspect_1", "message": "Hello"}'
+            
+        try:
+            model = genai.GenerativeModel('gemini-2.5-flash')
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            return f"Error: {str(e)}"

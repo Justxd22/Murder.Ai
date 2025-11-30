@@ -14,6 +14,22 @@
         <div>INITIALIZING CASE FILE...</div>
     </div>
 
+    <!-- AI Spectator Start Modal -->
+    <div id="spectator-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <div class="modal-header">AI DETECTIVE MODE</div>
+            <p style="margin: 20px 0;">You are now watching an AI Agent investigate this case.</p>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">It will gather evidence, interview suspects, and make an accusation.</p>
+            <button id="spectator-start-btn" class="modal-btn confirm" style="font-size: 1.2rem; width: 100%;">START INVESTIGATION</button>
+        </div>
+    </div>
+
+    <!-- AI Log Panel -->
+    <div id="ai-log-panel" style="display: none; grid-row: 2/3; grid-column: 2/3; background: rgba(0,0,0,0.95); padding: 20px; border: 2px solid #0f0; overflow-y: auto; font-family: 'Courier New', monospace; color: #0f0; z-index: 50; margin: 10px;">
+        <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #0f0; padding-bottom: 5px;">🤖 AI DETECTIVE LOG</div>
+        <div id="ai-log-content"></div>
+    </div>
+
     <div id="game-container">
         
         <!-- Header -->

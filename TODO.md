@@ -8,12 +8,12 @@
 - pre-generate suspects cartoony potraits
 - bottom gradio box to see internal MCP tools calls out/in
 - eleven labs tts/voice
-
-
-# Doing
 - add ai
 - mode selection
 - numbered steps to launch game
+
+
+# Doing
 
 - sound/music
 - video embeded

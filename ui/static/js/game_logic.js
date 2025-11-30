@@ -146,6 +146,91 @@ function initializeGame(data) {
     gameState.unlockedEvidence = data.unlocked_evidence || [];
     
     renderCaseFile(data.scenario);
+    
+    // Mode Check
+    if (data.mode === 'spectator') {
+        document.getElementById('spectator-modal').classList.add('active');
+        document.getElementById('spectator-start-btn').onclick = startSpectatorMode;
+        
+        // Disable user controls
+        document.getElementById('chat-input-area').style.display = 'none';
+        document.getElementById('tools-panel').style.pointerEvents = 'none';
+        document.getElementById('tools-panel').style.opacity = '0.5';
+    }
+}
+
+// --- AI Spectator Logic ---
+
+function startSpectatorMode() {
+    document.getElementById('spectator-modal').classList.remove('active');
+    document.getElementById('ai-log-panel').style.display = 'block';
+    runAIStep();
+}
+
+async function runAIStep() {
+    const logContent = document.getElementById('ai-log-content');
+    
+    // Visual "Thinking" state
+    const thinkingDiv = document.createElement('div');
+    thinkingDiv.style.color = '#888';
+    thinkingDiv.style.fontStyle = 'italic';
+    thinkingDiv.innerText = "Analyzing evidence...";
+    thinkingDiv.id = 'temp-thinking';
+    logContent.appendChild(thinkingDiv);
+    logContent.scrollTop = logContent.scrollHeight;
+    
+    // 1. Request Move
+    const response = await sendAction('ai_step', {});
+    
+    // Remove temp thinking
+    const temp = document.getElementById('temp-thinking');
+    if (temp) temp.remove();
+    
+    if (!response || response.action !== 'ai_step_result') {
+        return;
+    }
+    
+    const step = response.data;
+    
+    // 2. Log Thought
+    const entry = document.createElement('div');
+    entry.style.marginBottom = '15px';
+    entry.style.borderBottom = '1px dashed #333';
+    entry.style.paddingBottom = '10px';
+    entry.innerHTML = `
+        <div style="color:#aaa; margin-bottom:5px;">🤔 <strong>THOUGHT:</strong></div>
+        <div style="margin-bottom:10px;">${step.thought}</div>
+        <div style="color:#aaa; margin-bottom:5px;">⚡ <strong>ACTION:</strong> ${step.action.toUpperCase()}</div>
+    `;
+    logContent.appendChild(entry);
+    logContent.scrollTop = logContent.scrollHeight;
+    
+    // 3. Execute Action Visualization
+    if (step.action === 'chat') {
+        // Select suspect if needed
+        if (gameState.currentSuspect !== step.result.suspect_id) {
+            selectSuspect(step.result.suspect_id);
+        }
+        
+        // Simulate User Message (AI Detective)
+        addChatMessage('detective', step.result.question, "AI DETECTIVE");
+        
+        setTimeout(() => {
+            addChatMessage('suspect', step.result.response, "Suspect");
+        }, 1000);
+        
+    } else if (step.action === 'use_tool') {
+        showNotification(`🤖 AI USED TOOL`);
+    }
+    
+    // Loop
+    if (step.result.type !== 'game_over' && !step.result.outcome) {
+        setTimeout(runAIStep, 6000); // 6s delay for reading
+    } else {
+        if (step.result.type === 'game_over') {
+             triggerGameOver(step.result.outcome);
+        }
+    }
 }
 
 function renderCaseFile(scenario) {
@@ -741,7 +826,11 @@ function showModalResult(data) {
         resultDiv.style.marginTop = '20px';
         resultDiv.style.borderTop = '2px dashed var(--ink-color)';
         resultDiv.style.paddingTop = '10px';
-        document.querySelector('.modal-content').insertBefore(resultDiv, document.querySelector('.modal-actions'));
+        const modalContent = document.querySelector('#tool-modal .modal-content');
+        const modalActions = document.querySelector('#tool-modal .modal-actions');
+        if (modalContent && modalActions) {
+            modalContent.insertBefore(resultDiv, modalActions);
+        }
     }
     
     resultDiv.style.display = 'block';

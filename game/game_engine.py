@@ -2,6 +2,7 @@ import uuid
 from .scenario_generator import generate_crime_scenario
 from .llm_manager import LLMManager
 from .voice_manager import VoiceManager
+from .ai_detective import AIDetective
 from mcp import tools
 
 class GameInstance:
@@ -10,6 +11,8 @@ class GameInstance:
         self.scenario = generate_crime_scenario(difficulty)
         self.llm_manager = LLMManager()
         self.voice_manager = VoiceManager()
+        self.ai_detective = None # Initialized later to avoid circular dep issues if any, or just now.
+        
         self.round = 1
         self.max_rounds = 3 # 3 Chances
         self.points = 10
@@ -22,7 +25,54 @@ class GameInstance:
         
         # Initialize Agents
         self._init_agents()
+        self.ai_detective = AIDetective(self)
         
+    def run_ai_step(self):
+        """Executes one turn for the AI Detective."""
+        if self.game_over:
+            return {"thought": "Game Over.", "action": "none"}
+            
+        decision = self.ai_detective.decide_next_move()
+        action_type = decision.get("action")
+        thought = decision.get("thought", "Thinking...")
+        result = {}
+        
+        if action_type == "use_tool":
+            tool_name = decision.get("tool_name")
+            kwargs = decision.get("args", {})
+            result = self.use_tool(tool_name, **kwargs)
+            result["type"] = "evidence"
+            
+        elif action_type == "chat":
+            suspect_id = decision.get("suspect_id")
+            msg = decision.get("message")
+            response = self.question_suspect(suspect_id, msg)
+            result = {
+                "type": "chat",
+                "suspect_id": suspect_id,
+                "question": msg,
+                "response": response
+            }
+            
+        elif action_type == "accuse":
+            suspect_id = decision.get("suspect_id")
+            # Map suspect_id if it's just "suspect_1" (which it is)
+            # But make_accusation handles ID.
+            outcome = self.make_accusation(suspect_id)
+            result = {
+                "type": "game_over",
+                "outcome": outcome
+            }
+            
+        # Record result for AI memory
+        self.ai_detective.record_result(action_type, result)
+            
+        return {
+            "thought": thought,
+            "action": action_type,
+            "result": result
+        }
+
     def _init_agents(self):
         # 1. Detective
         detective_context = {
@@ -119,6 +169,11 @@ class GameInstance:
              return result # Don't deduct points for errors
              
         self.points -= cost
+        
+        # Inject input context for AI memory
+        if isinstance(result, dict):
+            result["_input_args"] = kwargs
+            
         self.evidence_revealed.append(result)
         self.log_event("System", f"Used {tool_name}. Cost: {cost} pts. Result: {str(result)}")
         return result
