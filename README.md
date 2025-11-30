@@ -33,7 +33,7 @@ https://youtu.be/uPPwrhlSzdA
 ## 🚀 Socials
 
 *   [X Post](https://x.com/_xd222/status/1995274083328561251?s=46)
-*   [Reddit Post](https://reddit.com/r/placeholder)
+*   [Reddit Post](https://www.reddit.com/r/huggingface/s/aCdEJZCwcv)
 
 ---
 ## 🎮 How to Play
