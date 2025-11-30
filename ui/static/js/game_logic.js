@@ -320,12 +320,34 @@ function addChatMessage(role, text, name="System") {
     
     msg.className = `chat-message ${className}`;
     
-    // Format: NAME: Message
     const displayName = name ? name.toUpperCase() : role.toUpperCase();
-    msg.innerHTML = `<strong>${displayName}:</strong> ${text}`;
     
+    // Immediate render for user/system
+    if (role !== 'suspect' && role !== 'assistant') {
+        msg.innerHTML = `<strong>${displayName}:</strong> ${text}`;
+        log.appendChild(msg);
+        log.scrollTop = log.scrollHeight;
+        return;
+    }
+
+    // Typing effect for suspects
+    msg.innerHTML = `<strong>${displayName}:</strong> <span class="typing-text"></span>`;
     log.appendChild(msg);
-    log.scrollTop = log.scrollHeight;
+    
+    const span = msg.querySelector('.typing-text');
+    let i = 0;
+    const speed = 20; // ms per char
+    
+    function type() {
+        if (i < text.length) {
+            span.textContent += text.charAt(i);
+            i++;
+            log.scrollTop = log.scrollHeight; // Auto-scroll
+            setTimeout(type, speed);
+        }
+    }
+    
+    type();
 }
 
 function sendUserMessage() {

@@ -4,9 +4,10 @@
 - remove scroll bars
 - players can't know there's more suspects down the list as we removed the scroll bar, can you scroll a bit down by default to show there's more cards down
 - find the texture missing
-
-
 - typing effect
+
+
+# Doing
 - mode selection
 - numbered steps to launch game
 
