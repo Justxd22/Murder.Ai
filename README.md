@@ -32,7 +32,7 @@ tags:
 
 ## 🚀 Socials
 
-*   [X Post](https://x.com/placeholder)
+*   [X Post](https://x.com/_xd222/status/1995274083328561251?s=46)
 *   [Reddit Post](https://reddit.com/r/placeholder)
 
 ---
