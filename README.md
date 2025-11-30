@@ -3,7 +3,7 @@ title: Murder.Ai
 emoji: 🕵️🔥🤖🔪
 colorFrom: red
 colorTo: gray
-runtime: docker
+sdk: docker
 pinned: false
 license: gpl-3.0
 short_description: Even AI has something to hide
