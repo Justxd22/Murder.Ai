@@ -126,14 +126,28 @@ def get_dna_test(case_data, evidence_id: str) -> dict:
     if not dna:
         return {"error": "Evidence not found or not testable."}
     
-    primary_match_name = get_suspect_name(case_data, dna.get("primary_match"))
-    
-    return {
-        "evidence_id": evidence_id,
-        "primary_match": primary_match_name,
-        "confidence": dna["confidence"],
-        "notes": dna["notes"]
-    }
+    # Handle single match
+    if "primary_match" in dna:
+        primary_match_name = get_suspect_name(case_data, dna.get("primary_match"))
+        return {
+            "evidence_id": evidence_id,
+            "primary_match": primary_match_name,
+            "confidence": dna.get("confidence", "Unknown"),
+            "notes": dna.get("notes", "")
+        }
+        
+    # Handle multiple/mixed matches
+    elif "matches" in dna:
+        match_names = [get_suspect_name(case_data, mid) for mid in dna["matches"]]
+        return {
+            "evidence_id": evidence_id,
+            "primary_match": "Mixed/Inconclusive",
+            "matches": match_names,
+            "confidence": "N/A (Multiple sources)",
+            "notes": dna.get("notes", "")
+        }
+        
+    return {"error": "Inconclusive test result."}
 
 def call_alibi(case_data, alibi_id: str = None, question: str = None, phone_number: str = None) -> dict:
     """

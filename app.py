@@ -264,18 +264,30 @@ def format_tool_response(tool_name, arg, result, scenario):
 
     elif tool_name == "get_dna_test":
         title = "🧬 DNA Result"
-        if "primary_match" in result and result["primary_match"] != "Unknown":
-            suspect = find_by_name(result["primary_match"])
-            if suspect:
-                suspect_id = suspect["id"]
-                suspect_name = suspect["name"]
         
-        if "error" in result:
-            html += f"<div style='color:red'>{result['error']}</div>"
-        else:
-            html += f"<div><strong>Match:</strong> {result.get('primary_match')}</div>"
-            html += f"<div><strong>Confidence:</strong> {result.get('confidence')}</div>"
+        if "matches" in result:
+            # Multiple matches
+            html += f"<div><strong>Mixed Sample:</strong></div><ul>"
+            for name in result["matches"]:
+                html += f"<li>{name}</li>"
+            html += "</ul>"
             html += f"<div><strong>Notes:</strong> {result.get('notes')}</div>"
+            # Note: We don't auto-assign a suspect_id for mixed results to avoid cluttering one card
+            
+        else:
+            # Single match
+            if "primary_match" in result and result["primary_match"] != "Unknown":
+                suspect = find_by_name(result["primary_match"])
+                if suspect:
+                    suspect_id = suspect["id"]
+                    suspect_name = suspect["name"]
+            
+            if "error" in result:
+                html += f"<div style='color:red'>{result['error']}</div>"
+            else:
+                html += f"<div><strong>Match:</strong> {result.get('primary_match')}</div>"
+                html += f"<div><strong>Confidence:</strong> {result.get('confidence')}</div>"
+                html += f"<div><strong>Notes:</strong> {result.get('notes')}</div>"
 
     elif tool_name == "get_footage":
         title = "📹 Security Footage"
