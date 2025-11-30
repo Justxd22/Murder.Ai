@@ -75,6 +75,9 @@ def get_location(case_data, phone_number: str, timestamp: str = None) -> dict:
 def get_footage(case_data, location: str, time_range: str = None) -> dict:
     """Query case database for camera footage."""
     
+    if not location:
+        return {"error": "Camera location is required."}
+    
     # Fuzzy match location keys
     target_loc_key = None
     footage_data = case_data.get("evidence", {}).get("footage_data", {})
