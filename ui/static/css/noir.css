@@ -60,6 +60,22 @@ body, html {
     display: flex;
     gap: 20px;
     font-size: 1.1rem;
+    align-items: center;
+}
+
+.stat-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-red);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    padding: 0 5px;
+}
+
+.stat-btn:hover {
+    transform: scale(1.2);
+    color: #fff;
 }
 
 /* --- Left Panel: Suspect Files --- */

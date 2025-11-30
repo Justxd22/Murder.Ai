@@ -74,6 +74,24 @@ class GameSession:
         if action == "select_suspect":
             return None 
             
+        if action == "next_round":
+            if self.game.advance_round():
+                return {
+                    "action": "update_status",
+                    "data": {
+                        "round": self.game.round,
+                        "points": self.game.points
+                    }
+                }
+            else:
+                return {
+                    "action": "game_over",
+                    "data": {
+                        "message": "COLD CASE. You ran out of time.",
+                        "verdict": False
+                    }
+                }
+
         if action == "chat_message":
             suspect_id = payload.get("suspect_id")
             message = payload.get("message")
@@ -95,14 +113,34 @@ class GameSession:
             arg = payload.get("input") # Default for single-input tools
             
             if tool_name == "accuse":
-                result_msg = self.game.make_accusation(payload.get("suspect_id"))
-                return {
-                    "action": "game_over",
-                    "data": {
-                        "message": result_msg,
-                        "verdict": self.game.verdict_correct
+                result = self.game.make_accusation(payload.get("suspect_id"))
+                
+                if result["result"] == "win":
+                    return {
+                        "action": "game_over",
+                        "data": {
+                            "message": result["message"],
+                            "verdict": True
+                        }
                     }
-                }
+                elif result["result"] == "loss":
+                    return {
+                        "action": "game_over",
+                        "data": {
+                            "message": result["message"],
+                            "verdict": False
+                        }
+                    }
+                else:
+                    return {
+                        "action": "round_failure",
+                        "data": {
+                            "message": result["message"],
+                            "eliminated_id": result["eliminated_id"],
+                            "round": result["new_round"],
+                            "points": result["new_points"]
+                        }
+                    }
 
             kwargs = {}
             if tool_name == "get_location":

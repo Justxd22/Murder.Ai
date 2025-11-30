@@ -15,6 +15,8 @@ class GameInstance:
         self.logs = [] # Chat logs
         self.game_over = False
         self.verdict_correct = False
+        self.eliminated_suspects = []
+        self.max_rounds = 3 # 3 Chances
         
         # Initialize Agents
         self._init_agents()
@@ -106,28 +108,43 @@ class GameInstance:
         return result
 
     def advance_round(self):
-        if self.round < self.max_rounds:
-            self.round += 1
-            return True
-        else:
-            self.game_over = True
-            return False
+        # Deprecated: Rounds advance via accusation now
+        pass
 
     def make_accusation(self, suspect_id):
-        self.game_over = True
-        
-        # Check if correct
         murderer = next((s for s in self.scenario["suspects"] if s["is_murderer"]), None)
+        suspect_name = next((s["name"] for s in self.scenario["suspects"] if s["id"] == suspect_id), "Unknown")
         
         if murderer and murderer["id"] == suspect_id:
+            self.game_over = True
             self.verdict_correct = True
-            msg = f"CORRECT! {murderer['name']} was the murderer."
+            return {
+                "result": "win", 
+                "message": f"CORRECT! {murderer['name']} was the murderer."
+            }
         else:
-            self.verdict_correct = False
-            msg = f"INCORRECT. The true murderer was {murderer['name'] if murderer else 'Unknown'}."
+            # Wrong accusation
+            self.eliminated_suspects.append(suspect_id)
+            self.log_event("System", f"Incorrect accusation: {suspect_name}. Eliminated.")
             
-        self.log_event("System", f"FINAL ACCUSATION: {suspect_id}. Result: {msg}")
-        return msg
+            if self.round >= self.max_rounds:
+                self.game_over = True
+                self.verdict_correct = False
+                return {
+                    "result": "loss",
+                    "message": f"WRONG. That was your last chance. The killer was {murderer['name']}."
+                }
+            else:
+                # Advance Round
+                self.round += 1
+                self.points += 5
+                return {
+                    "result": "continue",
+                    "message": f"{suspect_name} is INNOCENT. +5 Points. Try again.",
+                    "eliminated_id": suspect_id,
+                    "new_round": self.round,
+                    "new_points": self.points
+                }
 
 # Global Session Store
 SESSIONS = {}

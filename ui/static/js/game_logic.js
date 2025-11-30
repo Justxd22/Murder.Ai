@@ -71,6 +71,9 @@ function handleServerMessage(message) {
         case 'update_status':
             updateStatus(data);
             break;
+        case 'round_failure':
+            handleRoundFailure(data);
+            break;
         case 'game_over':
             triggerGameOver(data);
             break;
@@ -80,6 +83,12 @@ function handleServerMessage(message) {
 }
 
 // --- Game Logic ---
+
+function updateStatus(data) {
+    document.getElementById('round-display').innerText = `${data.round}/3`;
+    document.getElementById('points-display').innerText = data.points;
+    showNotification("TIME ADVANCED (+5 PTS)");
+}
 
 function initializeGame(data) {
     gameState = data;
@@ -93,7 +102,7 @@ function initializeGame(data) {
     addChatMessage('system', `VICTIM: ${data.scenario.victim.name}`);
     
     // Update UI stats
-    document.getElementById('round-display').innerText = `${data.round}/5`;
+    document.getElementById('round-display').innerText = `${data.round}/3`;
     document.getElementById('points-display').innerText = data.points;
     
     renderCaseFile(data.scenario);
@@ -115,6 +124,40 @@ function renderCaseFile(scenario) {
         description: details,
         type: "file"
     }, 20, 20);
+}
+
+function handleRoundFailure(data) {
+    showNotification("❌ " + data.message);
+    
+    // Update stats
+    document.getElementById('round-display').innerText = `${data.round}/3`;
+    document.getElementById('points-display').innerText = data.points;
+    
+    // Eliminate Suspect Visuals
+    const card = document.querySelector(`.suspect-card[data-id="${data.eliminated_id}"]`);
+    if (card) {
+        card.classList.add('eliminated');
+        card.onclick = null; // Disable clicking
+        card.style.opacity = "0.5";
+        card.style.filter = "grayscale(100%)";
+        
+        // Add X overlay
+        const xMark = document.createElement('div');
+        xMark.innerText = "❌";
+        xMark.style.position = "absolute";
+        xMark.style.top = "50%";
+        xMark.style.left = "50%";
+        xMark.style.transform = "translate(-50%, -50%)";
+        xMark.style.fontSize = "5rem";
+        xMark.style.color = "red";
+        xMark.style.opacity = "0.8";
+        card.appendChild(xMark);
+    }
+    
+    if (gameState.currentSuspect === data.eliminated_id) {
+        gameState.currentSuspect = null;
+        addChatMessage('system', "Suspect eliminated. Select another.");
+    }
 }
 
 function triggerGameOver(data) {
