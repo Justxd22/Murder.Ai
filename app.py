@@ -298,4 +298,4 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
 app = gr.mount_gradio_app(app, demo, path="/")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    uvicorn.run(app, host="127.0.0.1", port=7860)
