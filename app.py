@@ -94,6 +94,16 @@ class GameSession:
             tool_name = payload.get("tool")
             arg = payload.get("input") # Default for single-input tools
             
+            if tool_name == "accuse":
+                result_msg = self.game.make_accusation(payload.get("suspect_id"))
+                return {
+                    "action": "game_over",
+                    "data": {
+                        "message": result_msg,
+                        "verdict": self.game.verdict_correct
+                    }
+                }
+
             kwargs = {}
             if tool_name == "get_location":
                 kwargs = {"phone_number": arg}
@@ -122,6 +132,9 @@ class GameSession:
             
             # Format the result nicely
             evidence_data = format_tool_response(tool_name, arg, result, self.game.scenario)
+            
+            # Include updated points in response
+            evidence_data["updated_points"] = self.game.points
             
             return {
                 "action": "add_evidence",

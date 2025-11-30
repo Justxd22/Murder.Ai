@@ -60,6 +60,9 @@ function handleServerMessage(message) {
             addChatMessage(data.role, data.content, data.name);
             break;
         case 'add_evidence':
+            if (data.updated_points !== undefined) {
+                document.getElementById('points-display').innerText = data.updated_points;
+            }
             addEvidenceToBoard(data);
             break;
         case 'tool_error':
@@ -112,6 +115,55 @@ function renderCaseFile(scenario) {
         description: details,
         type: "file"
     }, 20, 20);
+}
+
+function triggerGameOver(data) {
+    const overlay = document.createElement('div');
+    overlay.id = 'game-over-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.9)';
+    overlay.style.color = 'white';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '1000';
+    overlay.style.fontFamily = "'Special Elite', cursive";
+    
+    const title = document.createElement('div');
+    title.style.fontSize = '3rem';
+    title.style.marginBottom = '20px';
+    
+    if (data.verdict) {
+        title.innerText = "CASE SOLVED";
+        title.style.color = "#4caf50";
+    } else {
+        title.innerText = "WRONG ACCUSATION";
+        title.style.color = "#f44336";
+    }
+    
+    const msg = document.createElement('div');
+    msg.innerText = data.message;
+    msg.style.fontSize = '1.5rem';
+    msg.style.maxWidth = '600px';
+    msg.style.textAlign = 'center';
+    msg.style.marginBottom = '40px';
+    
+    const btn = document.createElement('button');
+    btn.innerText = "PLAY AGAIN";
+    btn.className = "modal-btn confirm";
+    btn.style.fontSize = "1.5rem";
+    btn.onclick = () => location.reload();
+    
+    overlay.appendChild(title);
+    overlay.appendChild(msg);
+    overlay.appendChild(btn);
+    
+    document.body.appendChild(overlay);
 }
 
 // --- UI Rendering: Suspects ---
@@ -375,6 +427,15 @@ function useTool(toolName) {
         promptText.innerText = "Enter Evidence ID:";
     } else if (toolName === 'get_footage') {
         promptText.innerText = "Enter Camera Location:";
+    } else if (toolName === 'accuse') {
+        if (!gameState.currentSuspect) {
+            showNotification("⚠️ Select a suspect to accuse!");
+            closeModal();
+            return;
+        }
+        const suspect = gameState.scenario.suspects.find(s => s.id === gameState.currentSuspect);
+        promptText.innerText = `ACCUSE ${suspect.name.toUpperCase()}?`;
+        input.placeholder = "Type 'GUILTY' to confirm";
     }
     
     modal.classList.add('active');
@@ -402,6 +463,16 @@ function submitTool() {
             };
         } else {
             showModalError("Both fields are required.");
+            return;
+        }
+    } else if (pendingTool === 'accuse') {
+        if (value.toUpperCase() === 'GUILTY') {
+            payload = { 
+                tool: 'accuse', 
+                suspect_id: gameState.currentSuspect 
+            };
+        } else {
+            showModalError("Type 'GUILTY' to confirm accusation.");
             return;
         }
     } else {
@@ -470,6 +541,7 @@ document.getElementById('tool-map').onclick = () => useTool('get_location');
 document.getElementById('tool-camera').onclick = () => useTool('get_footage');
 document.getElementById('tool-phone').onclick = () => useTool('call_alibi');
 document.getElementById('tool-dna').onclick = () => useTool('get_dna_test');
+document.getElementById('tool-accuse').onclick = () => useTool('accuse');
 
 // Notify Parent that we are ready (Retry loop)
 console.log("📡 Attempting to connect to game server...");
