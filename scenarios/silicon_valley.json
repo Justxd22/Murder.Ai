@@ -80,22 +80,35 @@
           "visible_people": ["Person in black hoodie entering"],
           "quality": "Grainy",
           "key_frame": "8:47 PM - figure strikes victim with trophy"
-        }
+        },
+        "unlocks": ["trophy_weapon", "door_handle"] 
       },
       "lobby_camera": {
         "8:40-8:55 PM": {
           "visible_people": ["Suspect 1 entering at 8:43", "Suspect 1 leaving at 8:52"],
+          "quality": "Grainy",
           "notes": "Suspect changed clothes, looks flustered"
-        }
+        },
+        "unlocks": []
+      },
+      "kitchen_camera": {
+        "8:40-8:55 PM": {
+          "visible_people": ["Empty"],
+          "quality": "Low",
+          "notes": "Nothing happening."
+        },
+        "unlocks": []
       }
     },
     "dna_evidence": {
       "trophy_weapon": {
+        "label": "Trophy (Found in Office)",
         "primary_match": "suspect_1",
         "confidence": "95%",
         "notes": "Clear fingerprints found on the base"
       },
       "door_handle": {
+        "label": "Door Handle (10th Floor)",
         "matches": ["suspect_1", "suspect_2", "victim"],
         "notes": "Multiple people touched door recently"
       }

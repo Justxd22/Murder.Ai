@@ -8,7 +8,10 @@ let gameState = {
     evidence: [],
     chatLog: [],
     currentSuspect: null,
-    nextEvidenceSlot: 0 // Track grid position for new cards
+    nextEvidenceSlot: 0, // Track grid position for new cards
+    availableCameras: [],
+    dnaMap: {},
+    unlockedEvidence: []
 };
 
 // --- Bridge: Communication with Parent (Python/Gradio) ---
@@ -63,6 +66,25 @@ function handleServerMessage(message) {
             if (data.updated_points !== undefined) {
                 document.getElementById('points-display').innerText = data.updated_points;
             }
+            // console.log("Evidence Data:", data);
+            if (data.newly_unlocked && data.newly_unlocked.length > 0) {
+                console.log("🔓 Unlocking items:", data.newly_unlocked);
+                data.newly_unlocked.forEach(id => {
+                    if (!gameState.unlockedEvidence.includes(id)) {
+                        gameState.unlockedEvidence.push(id);
+                    }
+                });
+                showNotification("🔍 NEW EVIDENCE UNLOCKED");
+                
+                // Wiggle DNA button
+                const dnaBtn = document.getElementById('tool-dna');
+                dnaBtn.classList.add('wiggle');
+                
+                // Append to html_content for board display
+                let unlockHtml = `<div style="margin-top:5px; border-top:1px solid #ccc; padding-top:2px; font-size:0.8em; color:var(--accent-red);">🔓 NEW ITEMS UNLOCKED</div>`;
+                if (data.html_content) data.html_content += unlockHtml;
+                else data.description += unlockHtml; // Fallback
+            }
             addEvidenceToBoard(data);
             break;
         case 'tool_error':
@@ -104,6 +126,11 @@ function initializeGame(data) {
     // Update UI stats
     document.getElementById('round-display').innerText = `${data.round}/3`;
     document.getElementById('points-display').innerText = data.points;
+    
+    // Store Tool Data
+    gameState.availableCameras = data.available_cameras || [];
+    gameState.dnaMap = data.dna_map || {};
+    gameState.unlockedEvidence = data.unlocked_evidence || [];
     
     renderCaseFile(data.scenario);
 }
@@ -448,6 +475,7 @@ function useTool(toolName) {
     pendingTool = toolName;
     const modal = document.getElementById('tool-modal');
     const input = document.getElementById('modal-input');
+    const optionsContainer = document.getElementById('modal-options');
     const promptText = document.getElementById('modal-prompt-text');
     
     const section2 = document.getElementById('modal-section-2');
@@ -456,6 +484,8 @@ function useTool(toolName) {
     
     // Reset
     section2.style.display = 'none';
+    input.style.display = 'block';
+    optionsContainer.style.display = 'none';
     input.value = '';
     input2.value = '';
     
@@ -467,10 +497,23 @@ function useTool(toolName) {
         section2.style.display = 'block';
         promptText2.innerText = "Question for Alibi:";
     } else if (toolName === 'get_dna_test') {
-        promptText.innerText = "Enter Evidence ID:";
+        promptText.innerText = "Select Evidence to Test:";
+        
+        // Stop wiggling if clicked
+        document.getElementById('tool-dna').classList.remove('wiggle');
+        
+        if (gameState.unlockedEvidence.length === 0) {
+            showNotification("⚠️ No physical evidence found yet. Check camera footage!");
+            return; 
+        }
+        input.style.display = 'none';
+        populateOptionList(gameState.unlockedEvidence, gameState.dnaMap);
     } else if (toolName === 'get_footage') {
-        promptText.innerText = "Enter Camera Location:";
+        promptText.innerText = "Select Camera Feed:";
+        input.style.display = 'none';
+        populateOptionList(gameState.availableCameras);
     } else if (toolName === 'accuse') {
+        // ... existing accuse logic ...
         if (!gameState.currentSuspect) {
             showNotification("⚠️ Select a suspect to accuse!");
             closeModal();
@@ -482,17 +525,67 @@ function useTool(toolName) {
     }
     
     modal.classList.add('active');
-    input.focus();
+    if (input.style.display !== 'none') input.focus();
+}
+
+function populateOptionList(items, labelMap = null) {
+    const container = document.getElementById('modal-options');
+    container.innerHTML = '';
+    container.style.display = 'flex';
+    
+    items.forEach((item, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'modal-option-item';
+        wrapper.onclick = () => {
+            wrapper.querySelector('input').checked = true;
+        };
+        
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'tool-option';
+        radio.value = item;
+        radio.id = `opt-${index}`;
+        if (index === 0) radio.checked = true;
+        
+        const label = document.createElement('label');
+        label.htmlFor = `opt-${index}`;
+        
+        let text = item;
+        if (labelMap && labelMap[item]) {
+            text = labelMap[item];
+        } else {
+            text = item.replace(/_/g, ' ').toUpperCase();
+        }
+        label.innerText = text;
+        
+        wrapper.appendChild(radio);
+        wrapper.appendChild(label);
+        container.appendChild(wrapper);
+    });
 }
 
 function submitTool() {
     const input = document.getElementById('modal-input');
-    const value = input.value.trim();
+    const optionsContainer = document.getElementById('modal-options');
+    
+    let value = input.value.trim();
+    
+    // Use radio value if visible
+    if (optionsContainer.style.display !== 'none') {
+        const selected = optionsContainer.querySelector('input[name="tool-option"]:checked');
+        if (selected) {
+            value = selected.value;
+        } else {
+            value = '';
+        }
+    }
+    
     const confirmBtn = document.getElementById('modal-confirm');
     
     if (!pendingTool) return;
     
     let payload = null;
+    // ... rest of submitTool ... (Logic remains same as it uses 'value')
     
     if (pendingTool === 'call_alibi') {
         const input2 = document.getElementById('modal-input-2');
@@ -509,7 +602,7 @@ function submitTool() {
             return;
         }
     } else if (pendingTool === 'accuse') {
-        if (value.toUpperCase() === 'GUILTY') {
+         if (value.toUpperCase() === 'GUILTY') {
             payload = { 
                 tool: 'accuse', 
                 suspect_id: gameState.currentSuspect 
@@ -535,11 +628,61 @@ function submitTool() {
             
             if (result && result.action === 'tool_error') {
                 showModalError(result.data.message);
+            } else if (result && result.action === 'add_evidence') {
+                // Success: Show result in modal
+                showModalResult(result.data);
+                // Auto-close after 5s
+                setTimeout(closeModal, 5000);
             } else {
                 closeModal();
             }
         });
     }
+}
+
+function showModalResult(data) {
+    // Hide inputs
+    document.getElementById('modal-input').style.display = 'none';
+    document.getElementById('modal-options').style.display = 'none';
+    document.getElementById('modal-section-2').style.display = 'none';
+    document.getElementById('modal-prompt-text').style.display = 'none';
+    
+    // Show result
+    let resultDiv = document.getElementById('modal-result');
+    if (!resultDiv) {
+        resultDiv = document.createElement('div');
+        resultDiv.id = 'modal-result';
+        resultDiv.style.marginTop = '20px';
+        resultDiv.style.borderTop = '2px dashed var(--ink-color)';
+        resultDiv.style.paddingTop = '10px';
+        document.querySelector('.modal-content').insertBefore(resultDiv, document.querySelector('.modal-actions'));
+    }
+    
+    resultDiv.style.display = 'block';
+    
+    let html = `
+        <div style="font-weight:bold; margin-bottom:5px;">RESULT:</div>
+        ${data.html_content || data.description}
+    `;
+    
+    if (data.newly_unlocked && data.newly_unlocked.length > 0) {
+        html += `<div class="unlocked-list"><strong>🔓 UNLOCKED FOR DNA TEST:</strong><ul>`;
+        data.newly_unlocked.forEach(id => {
+            let label = id;
+            if (gameState.dnaMap && gameState.dnaMap[id]) {
+                label = gameState.dnaMap[id];
+            }
+            html += `<li>${label}</li>`;
+        });
+        html += `</ul></div>`;
+    }
+    
+    resultDiv.innerHTML = html;
+    
+    // Change button
+    const btn = document.getElementById('modal-confirm');
+    btn.innerText = "CLOSE";
+    btn.onclick = closeModal;
 }
 
 function showModalError(msg) {
@@ -561,6 +704,18 @@ function closeModal() {
     pendingTool = null;
     const errDiv = document.getElementById('modal-error');
     if (errDiv) errDiv.innerText = ''; 
+    
+    const resultDiv = document.getElementById('modal-result');
+    if (resultDiv) resultDiv.style.display = 'none';
+    
+    const btn = document.getElementById('modal-confirm');
+    btn.innerText = "SUBMIT";
+    btn.onclick = submitTool;
+    btn.disabled = false;
+    
+    // Reset inputs visibility for next time (useTool will override, but safe default)
+    document.getElementById('modal-input').style.display = 'block';
+    document.getElementById('modal-prompt-text').style.display = 'block';
 }
 
 // --- Listeners ---

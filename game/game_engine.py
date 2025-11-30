@@ -17,6 +17,7 @@ class GameInstance:
         self.verdict_correct = False
         self.eliminated_suspects = []
         self.max_rounds = 3 # 3 Chances
+        self.unlocked_evidence = [] # Track unlocked DNA items
         
         # Initialize Agents
         self._init_agents()
@@ -88,10 +89,20 @@ class GameInstance:
             cost = 2
             result = tools.get_location(self.scenario, kwargs.get("phone_number"), kwargs.get("timestamp"))
         elif tool_name == "get_footage":
-            cost = 2
-            result = tools.get_footage(self.scenario, kwargs.get("location"), kwargs.get("time_range"))
-        elif tool_name == "get_dna_test":
             cost = 3
+            result = tools.get_footage(self.scenario, kwargs.get("location"), kwargs.get("time_range"))
+            
+            # Handle unlocks
+            if "unlocks" in result:
+                new_items = []
+                for item_id in result["unlocks"]:
+                    if item_id not in self.unlocked_evidence:
+                        self.unlocked_evidence.append(item_id)
+                        new_items.append(item_id)
+                result["newly_unlocked"] = new_items
+                
+        elif tool_name == "get_dna_test":
+            cost = 4
             result = tools.get_dna_test(self.scenario, kwargs.get("evidence_id"))
         elif tool_name == "call_alibi":
             cost = 1

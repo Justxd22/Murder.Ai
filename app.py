@@ -41,12 +41,23 @@ class GameSession:
     def _get_init_data(self):
         if not self.game:
             return None
+            
+        # Prepare static data for tools
+        cameras = list(self.game.scenario["evidence"]["footage_data"].keys())
+        
+        dna_map = {}
+        for k, v in self.game.scenario["evidence"]["dna_evidence"].items():
+            dna_map[k] = v.get("label", k) # Fallback to ID if no label
+            
         return {
             "action": "init_game",
             "data": {
                 "scenario": self.game.scenario,
                 "round": self.game.round,
-                "points": self.game.points
+                "points": self.game.points,
+                "available_cameras": cameras,
+                "dna_map": dna_map,
+                "unlocked_evidence": self.game.unlocked_evidence
             }
         }
 
@@ -171,8 +182,12 @@ class GameSession:
             # Format the result nicely
             evidence_data = format_tool_response(tool_name, arg, result, self.game.scenario)
             
-            # Include updated points in response
+            # Include updated points and unlocks in response
             evidence_data["updated_points"] = self.game.points
+            evidence_data["unlocked_evidence"] = self.game.unlocked_evidence
+            
+            if "newly_unlocked" in result and result["newly_unlocked"]:
+                evidence_data["newly_unlocked"] = result["newly_unlocked"]
             
             return {
                 "action": "add_evidence",

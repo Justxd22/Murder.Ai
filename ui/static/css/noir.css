@@ -434,6 +434,28 @@ button.send-btn:hover {
     to { transform: rotate(360deg); }
 }
 
+@keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+    75% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.wiggle {
+    animation: wiggle 0.5s ease-in-out infinite;
+    border-color: var(--accent-red) !important;
+    color: var(--accent-red) !important;
+}
+
+.unlocked-list {
+    margin-top: 10px;
+    background: rgba(0,0,0,0.1);
+    padding: 5px;
+    border: 1px dashed #555;
+    font-size: 0.8rem;
+}
+
 /* --- Tool Modal --- */
 .modal-overlay {
     position: fixed;
@@ -482,6 +504,42 @@ button.send-btn:hover {
     font-size: 1.1rem;
     color: #000;
     box-sizing: border-box;
+}
+
+/* Option List (Radio/Checkbox alternative) */
+.modal-option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.modal-option-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.1);
+    border: 1px dashed #555;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modal-option-item:hover {
+    background: rgba(0,0,0,0.2);
+}
+
+.modal-option-item input {
+    margin-right: 10px;
+    transform: scale(1.2);
+    accent-color: var(--accent-red);
+}
+
+.modal-option-item label {
+    cursor: pointer;
+    flex-grow: 1;
+    font-family: 'Courier New', monospace;
 }
 
 .modal-actions {

@@ -96,16 +96,26 @@ def get_footage(case_data, location: str, time_range: str = None) -> dict:
              return {"error": f"No footage for time {time_range}. Available: {list(loc_footage.keys())}"}
     else:
         # Return the first available clip info
-        first_key = list(loc_footage.keys())[0]
+        # keys() might include "unlocks", so filter for time-like keys? 
+        # Actually, logic assumes keys are time ranges. 
+        # "unlocks" is a key but not a time range.
+        # We should find a key that contains ":" or is not "unlocks"
+        
+        valid_keys = [k for k in loc_footage.keys() if k != "unlocks"]
+        if not valid_keys:
+             return {"error": "No footage clips available."}
+             
+        first_key = valid_keys[0]
         footage = loc_footage[first_key]
         time_range = first_key # Update for return
     
     return {
         "location": target_loc_key,
         "time_range": time_range,
-        "visible_people": footage["visible_people"],
-        "quality": footage["quality"],
-        "key_details": footage.get("key_frame", "No significant events")
+        "visible_people": footage.get("visible_people", []),
+        "quality": footage.get("quality", "Unknown"),
+        "key_details": footage.get("key_frame", "No significant events"),
+        "unlocks": loc_footage.get("unlocks", []) # Fix: Get form camera level
     }
 
 def get_dna_test(case_data, evidence_id: str) -> dict:
