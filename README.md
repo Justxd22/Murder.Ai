@@ -25,8 +25,8 @@ tags:
 ---
 
 ## 🎬 Demo Video
-
-[![YouTube Demo](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+https://youtu.be/uPPwrhlSzdA
+[![YouTube Demo](https://youtu.be/uPPwrhlSzdA)](https://youtu.be/uPPwrhlSzdA)
 
 ---
 
