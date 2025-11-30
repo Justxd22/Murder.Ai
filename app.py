@@ -263,7 +263,9 @@ def format_tool_response(tool_name, arg, result, scenario):
             html += f"<div style='font-size:0.8em; color:#555'>Confidence: {result.get('confidence')}</div>"
 
     elif tool_name == "get_dna_test":
-        title = "🧬 DNA Result"
+        # Get the label for the evidence item
+        evidence_label = scenario["evidence"]["dna_evidence"].get(arg, {}).get("label", arg)
+        title = f"🧬 DNA Result for {evidence_label}"
         
         if "matches" in result:
             # Multiple matches

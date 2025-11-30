@@ -77,19 +77,19 @@
     "footage_data": {
       "10th_floor_camera": {
         "8:45-8:50 PM": {
-          "visible_people": ["Person in black hoodie entering"],
+          "visible_people": ["Person in black hoodie entering", "Janitor cart visible in corner"],
           "quality": "Grainy",
           "key_frame": "8:47 PM - figure strikes victim with trophy"
         },
-        "unlocks": ["trophy_weapon", "door_handle"] 
+        "unlocks": ["door_handle", "coffee_mug", "laptop", "trophy_weapon"]
       },
       "lobby_camera": {
         "8:40-8:55 PM": {
-          "visible_people": ["Suspect 1 entering at 8:43", "Suspect 1 leaving at 8:52"],
-          "quality": "Grainy",
-          "notes": "Suspect changed clothes, looks flustered"
+          "visible_people": ["Suspect 1 entering at 8:43", "Suspect 1 leaving at 8:52", "Suspect 3 arguing with guard earlier"],
+          "quality": "High",
+          "notes": "Suspect 1 changed clothes, looks flustered. Suspect 3 seen leaving at 8:30."
         },
-        "unlocks": []
+        "unlocks": ["discarded_ticket"]
       },
       "kitchen_camera": {
         "8:40-8:55 PM": {
@@ -103,19 +103,37 @@
     "dna_evidence": {
       "trophy_weapon": {
         "label": "Trophy (Found in Office)",
-        "primary_match": "suspect_1",
-        "confidence": "95%",
-        "notes": "Clear fingerprints found on the base"
+        "matches": ["suspect_1", "suspect_3", "victim"],
+        "confidence": "65%",
+        "notes": "Partial print on base. Smudged."
       },
       "door_handle": {
         "label": "Door Handle (10th Floor)",
         "matches": ["suspect_1", "suspect_2", "victim"],
         "notes": "Multiple people touched door recently"
+      },
+      "coffee_mug": {
+        "label": "Coffee Mug (Desk)",
+        "primary_match": "victim",
+        "confidence": "99%",
+        "notes": "Victim's saliva."
+      },
+      "laptop": {
+        "label": "Laptop (Desk)",
+        "matches": ["victim", "suspect_2"],
+        "notes": "Dusty fingerprints from cleaning."
+      },
+      "discarded_ticket": {
+        "label": "Parking Ticket (Lobby)",
+        "primary_match": "suspect_3",
+        "confidence": "99%",
+        "notes": "Dropped near exit."
       }
     },
     "alibis": {
       "suspect_1_alibi": {
         "contact": "Nobody (claims was alone)",
+        "contact_name": "None",
         "verifiable": false,
         "truth": "Lying - was at crime scene"
       },
@@ -123,19 +141,19 @@
         "contact": "+1-555-0199",
         "contact_name": "Security Guard Tom",
         "verifiable": true,
-        "truth": "Telling truth - saw him on 5th floor"
+        "truth": "Telling truth - saw him on 5th floor around 8:45"
       },
        "suspect_3_alibi": {
         "contact": "+1-555-0200",
         "contact_name": "Waiter at La Casa",
         "verifiable": true,
-        "truth": "Telling truth - bill was paid at 9:00 PM"
+        "truth": "Telling truth - bill was paid at 9:00 PM, but she arrived late (8:55)"
       },
        "suspect_4_alibi": {
         "contact": "+1-555-0201",
         "contact_name": "Airline Desk",
         "verifiable": true,
-        "truth": "Telling truth - checked in at 8:30 PM"
+        "truth": "Telling truth - checked in at 8:30 PM, seen at gate"
       }
     }
   },

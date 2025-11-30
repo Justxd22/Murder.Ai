@@ -1,7 +1,7 @@
 {
   "case_id": "C99",
   "title": "The Gallery Heist Gone Wrong",
-  "difficulty": "Hard",
+  "difficulty": "Expert",
   "victim": {
     "name": "Vincent Shaw",
     "age": 55,
@@ -70,22 +70,45 @@
     "footage_data": {
       "office_cam": {
         "9:50-10:10 PM": {
-          "visible_people": ["Vincent drinking wine", "Julian pouring more wine"],
+          "visible_people": ["Vincent drinking wine", "Julian pouring more wine", "Shadowy figure (Arthur?) outside window"],
           "quality": "High",
-          "key_frame": "9:55 PM - Julian adds powder to glass"
-        }
+          "key_frame": "9:55 PM - Julian adds powder to glass. BUT 9:58 PM - Elena enters and argues."
+        },
+        "unlocks": ["wine_glass", "poison_vial", "sculpture", "dropped_scarf"]
+      },
+      "main_hall_cam": {
+        "9:50-10:10 PM": {
+          "visible_people": ["Crowd of guests", "Maria serving drinks"],
+          "quality": "Medium",
+          "notes": "Too many people to track individually"
+        },
+        "unlocks": []
       }
     },
     "dna_evidence": {
       "wine_glass": {
-        "primary_match": "suspect_1",
-        "confidence": "80%",
-        "notes": "Fingerprints of Julian on the stem"
+        "label": "Wine Glass (Office)",
+        "matches": ["suspect_1", "victim", "suspect_2"],
+        "confidence": "Mixed",
+        "notes": "Julian poured it, Vincent drank it, Elena touched it during argument."
       },
        "poison_vial": {
+        "label": "Vial (Julian's Pocket)",
         "primary_match": "suspect_1",
         "confidence": "99%",
         "notes": "Found in Julian's pocket"
+      },
+      "sculpture": {
+        "label": "Bronze Sculpture",
+        "primary_match": "suspect_3",
+        "confidence": "90%",
+        "notes": "Arthur was admiring it earlier."
+      },
+      "dropped_scarf": {
+        "label": "Silk Scarf",
+        "primary_match": "suspect_2",
+        "confidence": "99%",
+        "notes": "Elena's scarf found under the desk."
       }
     },
     "alibis": {
@@ -93,12 +116,31 @@
         "contact": "+1-555-2200",
         "contact_name": "Maria (Caterer)",
         "verifiable": true,
-        "truth": "Lying - Maria didn't see him"
+        "truth": "Lying - Maria didn't see him in basement"
+      },
+      "suspect_2_alibi": {
+        "contact": "None",
+        "contact_name": "Gallery Guests",
+        "verifiable": true,
+        "truth": "Conflicting - some saw her, some say she disappeared for 10 mins"
+      },
+      "suspect_3_alibi": {
+        "contact": "+1-555-2203",
+        "contact_name": "Valet",
+        "verifiable": true,
+        "truth": "Telling truth - was arguing about car parking outside"
+      },
+      "suspect_4_alibi": {
+        "contact": "None",
+        "contact_name": "Head Chef",
+        "verifiable": true,
+        "truth": "Telling truth - never left kitchen"
       }
     }
   },
   "timeline": {
     "9:55 PM": "Julian poisons wine",
+    "9:58 PM": "Elena argues with Vincent",
     "10:00 PM": "Vincent collapses",
     "10:05 PM": "Julian calls 911 feigning panic"
   }

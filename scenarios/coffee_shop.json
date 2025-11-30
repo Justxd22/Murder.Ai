@@ -1,7 +1,7 @@
 {
   "case_id": "B12",
   "title": "The Coffee Shop Murder",
-  "difficulty": "Easy",
+  "difficulty": "Medium",
   "victim": {
     "name": "Emma Rodriguez",
     "age": 24,
@@ -76,36 +76,65 @@
     "footage_data": {
       "kitchen_cam": {
         "11:10-11:20 PM": {
-          "visible_people": ["Emma arguing with man in blue cap"],
+          "visible_people": ["Emma arguing with man in blue cap", "Second figure in shadows"],
           "quality": "Good",
           "key_frame": "11:15 PM - Man stabs Emma"
-        }
+        },
+        "unlocks": ["knife_handle", "tip_jar", "napkin"]
       },
       "alley_cam": {
         "11:00-11:30 PM": {
-          "visible_people": ["Liam entering 11:05", "Liam running out 11:16"],
-          "notes": "Wearing blue cap"
-        }
+          "visible_people": ["Liam entering 11:05", "Mark leaving 11:00", "Joe lurking near dumpster"],
+          "quality": "Grainy (Night Mode)",
+          "notes": "Two people wearing blue caps seen (Liam and Joe)."
+        },
+        "unlocks": []
       }
     },
     "dna_evidence": {
       "knife_handle": {
-        "primary_match": "suspect_1",
+        "label": "Bloody Knife (Kitchen)",
+        "matches": ["suspect_1", "suspect_2"],
+        "confidence": "Inconclusive",
+        "notes": "Smudged prints. Could be Liam or Mark (who owns the knife)."
+      },
+      "tip_jar": {
+        "label": "Tip Jar (Counter)",
+        "primary_match": "suspect_2",
         "confidence": "99%",
-        "notes": "Sweat and skin cells found"
+        "notes": "Mark cleared the tips earlier."
+      },
+      "napkin": {
+        "label": "Crumpled Napkin",
+        "primary_match": "suspect_4",
+        "confidence": "95%",
+        "notes": "Joe's DNA. He was here earlier."
       }
     },
     "alibis": {
       "suspect_1_alibi": {
         "contact": "None",
+        "contact_name": "Mom",
         "verifiable": false,
-        "truth": "Lying - claims gaming alone"
+        "truth": "Lying - claims she heard him gaming, but door was closed"
       },
       "suspect_2_alibi": {
         "contact": "+1-555-1200",
         "contact_name": "Bank CCTV",
         "verifiable": true,
-        "truth": "Telling truth - footage confirms"
+        "truth": "Telling truth - footage confirms he was at bank at 11:15"
+      },
+      "suspect_3_alibi": {
+        "contact": "+1-555-1203",
+        "contact_name": "Gym Front Desk",
+        "verifiable": true,
+        "truth": "Telling truth - scanned badge at 11:00 PM"
+      },
+      "suspect_4_alibi": {
+        "contact": "None",
+        "contact_name": "Bus Driver",
+        "verifiable": false,
+        "truth": "Uncertain - bus was late, nobody remembers seeing him"
       }
     }
   },
