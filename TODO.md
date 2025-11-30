@@ -7,10 +7,10 @@
 - typing effect
 - pre-generate suspects cartoony potraits
 - bottom gradio box to see internal MCP tools calls out/in
+- eleven labs tts/voice
 
 
 # Doing
-- eleven labs tts/voice
 - add ai
 - mode selection
 - numbered steps to launch game

@@ -61,7 +61,7 @@ function handleServerMessage(message) {
             initializeGame(data);
             break;
         case 'update_chat':
-            addChatMessage(data.role, data.content, data.name);
+            addChatMessage(data.role, data.content, data.name, data.audio);
             break;
         case 'add_evidence':
             if (data.updated_points !== undefined) {
@@ -362,7 +362,9 @@ function selectSuspect(suspectId) {
 
 // --- UI Rendering: Chat ---
 
-function addChatMessage(role, text, name="System") {
+let currentAudio = null;
+
+function addChatMessage(role, text, name="System", audioB64=null) {
     const log = document.getElementById('chat-log');
     const msg = document.createElement('div');
     
@@ -400,6 +402,16 @@ function addChatMessage(role, text, name="System") {
     }
     
     type();
+    
+    // Play Audio
+    if (audioB64) {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+        currentAudio = new Audio(audioB64);
+        currentAudio.play().catch(e => console.error("Audio Play Error:", e));
+    }
 }
 
 function sendUserMessage() {
@@ -807,6 +819,49 @@ document.getElementById('chat-input').addEventListener('keypress', function (e) 
         sendUserMessage();
     }
 });
+
+// --- Voice to Text ---
+
+function setupMic() {
+    if (!('webkitSpeechRecognition' in window)) {
+        document.getElementById('mic-btn').style.display = 'none';
+        return;
+    }
+    
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('chat-input');
+    
+    recognition.onstart = function() {
+        micBtn.style.backgroundColor = 'red';
+        micBtn.innerText = '🛑';
+    };
+    
+    recognition.onend = function() {
+        micBtn.style.backgroundColor = ''; // reset
+        micBtn.innerText = '🎤';
+    };
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        // Optional: Auto-send? No, let user confirm.
+    };
+    
+    micBtn.onclick = function() {
+        if (micBtn.innerText === '🎤') {
+            recognition.start();
+        } else {
+            recognition.stop();
+        }
+    };
+}
+
+setupMic();
 
 // Tool Buttons
 document.getElementById('tool-map').onclick = () => useTool('get_location');

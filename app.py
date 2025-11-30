@@ -3,7 +3,8 @@ import os
 import json
 import uvicorn
 import time
-from fastapi import FastAPI
+import base64
+from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 from game import game_engine
 from pydantic import BaseModel
@@ -30,6 +31,10 @@ def add_log(message):
 class BridgeRequest(BaseModel):
     action: str
     data: dict = {}
+
+class TTSRequest(BaseModel):
+    text: str
+    voice_id: str
 
 @app.post("/api/bridge")
 async def api_bridge(request: BridgeRequest):
@@ -127,14 +132,37 @@ class GameSession:
             message = payload.get("message")
             response = self.game.question_suspect(suspect_id, message)
             
-            suspect_name = next((s["name"] for s in self.game.scenario["suspects"] if s["id"] == suspect_id), "Suspect")
+            suspect = next((s for s in self.game.scenario["suspects"] if s["id"] == suspect_id), None)
+            suspect_name = suspect["name"] if suspect else "Suspect"
+            
+            # Clean text for ElevenLabs
+            cleaned_response = response
+            # Remove text within leading parentheses (e.g., "(A bit defensively)")
+            if cleaned_response.strip().startswith('(') and ')' in cleaned_response:
+                end_paren_idx = cleaned_response.find(')')
+                if end_paren_idx != -1:
+                    cleaned_response = cleaned_response[end_paren_idx + 1:].strip()
+            
+            # Remove all asterisks
+            cleaned_response = cleaned_response.replace('*', '')
+            
+            # Trim leading/trailing whitespace
+            cleaned_response = cleaned_response.strip()
+
+            # Generate Audio
+            audio_b64 = None
+            if suspect and "voice_id" in suspect and cleaned_response: # Only generate if there's text left
+                audio_bytes = self.game.voice_manager.generate_audio(cleaned_response, suspect["voice_id"])
+                if audio_bytes:
+                    audio_b64 = "data:audio/mpeg;base64," + base64.b64encode(audio_bytes).decode('utf-8')
             
             return {
                 "action": "update_chat",
                 "data": {
                     "role": "suspect",
                     "name": suspect_name,
-                    "content": response
+                    "content": response, # Keep original response for display
+                    "audio": audio_b64
                 }
             }
             

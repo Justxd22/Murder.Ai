@@ -1,6 +1,7 @@
 import uuid
 from .scenario_generator import generate_crime_scenario
 from .llm_manager import LLMManager
+from .voice_manager import VoiceManager
 from mcp import tools
 
 class GameInstance:
@@ -8,15 +9,15 @@ class GameInstance:
         self.id = str(uuid.uuid4())
         self.scenario = generate_crime_scenario(difficulty)
         self.llm_manager = LLMManager()
+        self.voice_manager = VoiceManager()
         self.round = 1
-        self.max_rounds = 5
+        self.max_rounds = 3 # 3 Chances
         self.points = 10
         self.evidence_revealed = [] # List of strings or result dicts
         self.logs = [] # Chat logs
         self.game_over = False
         self.verdict_correct = False
         self.eliminated_suspects = []
-        self.max_rounds = 3 # 3 Chances
         self.unlocked_evidence = [] # Track unlocked DNA items
         
         # Initialize Agents
@@ -39,7 +40,11 @@ class GameInstance:
             # Generate or retrieve Alibi ID
             # In a real app, this should be in the JSON. For now, we synth it.
             alibi_id = suspect.get("alibi_id", f"ALIBI-{100+i}")
-            suspect["alibi_id"] = alibi_id # Save back to scenario for tools lookup
+            suspect["alibi_id"] = alibi_id 
+            
+            # Assign Voice
+            if "gender" in suspect:
+                suspect["voice_id"] = self.voice_manager.assign_voice(suspect["gender"], suspect.get("role", ""))
             
             # Context for prompt
             context = {
