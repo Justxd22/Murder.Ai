@@ -6,16 +6,16 @@
 - find the texture missing
 - typing effect
 - pre-generate suspects cartoony potraits
+- bottom gradio box to see internal MCP tools calls out/in
 
 
 # Doing
-- bottom gradio box to see internal MCP tools calls out/in
+- eleven labs tts/voice
 - add ai
 - mode selection
 - numbered steps to launch game
 
 - sound/music
-- eleven labs tts/voice
 - video embeded
 - divider
 - mcp showcase with title "try tools without playing"

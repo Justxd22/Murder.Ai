@@ -2,6 +2,7 @@ import gradio as gr
 import os
 import json
 import uvicorn
+import time
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from game import game_engine
@@ -13,6 +14,17 @@ app = FastAPI()
 os.makedirs("ui/static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="ui/static"), name="static")
 
+# --- Global Logging ---
+LOG_BUFFER = []
+
+def add_log(message):
+    timestamp = time.strftime("%H:%M:%S")
+    entry = f"[{timestamp}] {message}\n" + "-"*40 + "\n"
+    LOG_BUFFER.append(entry)
+    # Keep last 50 logs
+    if len(LOG_BUFFER) > 50:
+        LOG_BUFFER.pop(0)
+
 # --- API Bridge ---
 
 class BridgeRequest(BaseModel):
@@ -23,8 +35,15 @@ class BridgeRequest(BaseModel):
 async def api_bridge(request: BridgeRequest):
     """Direct API endpoint for game logic communication."""
     input_data = json.dumps({"action": request.action, "data": request.data})
+    
+    # Log Request
+    add_log(f"IN: {input_data}")
     print(f"API Bridge Received: {input_data}")
     response = session.handle_input(input_data)
+    # Log Response
+    if response:
+        add_log(f"OUT: {json.dumps(response)}")
+        
     return response or {} 
 
 # --- Game Logic Wrapper ---
@@ -347,12 +366,14 @@ def start_game_from_ui(case_name):
     )
 
 css = """
-#bridge-input, #bridge-output { display: none !important; }
+#bridge-input, #bridge-output, #log-input { display: none !important; }
 .gradio-container { padding: 0 !important; max-width: 100% !important; height: 100vh !important; display: flex; flex-direction: column; }
 #game-frame-container { flex-grow: 1; height: 100% !important; border: none; overflow: hidden; padding: 0; }
 #game-frame-container > .html-container { height: 100% !important; display: flex; flex-direction: column; }
 #game-frame-container .prose { flex-grow: 1; height: 100% !important; max-width: 100% !important; }
 footer { display: none !important; } 
+/* Allow scrolling for logs */
+.gradio-container { overflow-y: auto !important; }
 """
 
 with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
@@ -376,6 +397,28 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
     bridge_input = gr.Textbox(elem_id="bridge-input", visible=True)
     bridge_output = gr.Textbox(elem_id="bridge-output", visible=True)
     
+    # Log Box
+    with gr.Accordion("System Logs (MCP Traffic)", open=False):
+        with gr.Row():
+            refresh_logs_btn = gr.Button("🔄 Refresh Logs", scale=0)
+            auto_refresh = gr.Checkbox(label="Auto-refresh (1s)", value=False, scale=0)
+        log_box = gr.Textbox(label="Traffic", lines=10, max_lines=10, interactive=False, autoscroll=True, elem_id="visible-log-box")
+    
+    # Log Polling
+    log_timer = gr.Timer(1, active=False)
+    
+    def poll_logs():
+        return "".join(LOG_BUFFER)
+
+    log_timer.tick(fn=poll_logs, outputs=log_box)
+    
+    refresh_logs_btn.click(fn=poll_logs, outputs=log_box)
+    
+    def toggle_timer(active):
+        return gr.Timer(active=active)
+        
+    auto_refresh.change(fn=toggle_timer, inputs=auto_refresh, outputs=log_timer)
+
     # Start Game Event
     start_btn.click(
         fn=start_game_from_ui,
@@ -383,6 +426,11 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
         outputs=[selector_row, game_group, bridge_output]
     )
     
+    # Bridge Logic with Logging (Legacy/Fallback)
+    def bridge_logic_with_log(input_data, current_log):
+        # ... existing logic ...
+        return None, None # Disabled
+
     # Bridge Logic (Python -> JS)
     bridge_output.change(
         None,
