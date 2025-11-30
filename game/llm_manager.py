@@ -44,7 +44,7 @@ class LLMManager:
     def _load_prompts(self):
         prompts = {}
         prompt_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "prompts")
-        for filename in ["murderer.txt", "witness.txt", "detective.txt"]:
+        for filename in ["murderer.txt", "witness.txt", "detective.txt", "alibi_agent.txt"]:
             key = filename.replace(".txt", "")
             try:
                 with open(os.path.join(prompt_dir, filename), "r") as f:
@@ -59,7 +59,7 @@ class LLMManager:
         Creates a new GeminiAgent for a specific character.
         
         agent_id: Unique ID (e.g., 'suspect_1', 'detective')
-        role: 'murderer', 'witness', 'detective'
+        role: 'murderer', 'witness', 'detective', 'alibi_agent'
         context_data: Dict to fill in the prompt templates (name, victim_name, etc.)
         """
         
@@ -68,6 +68,8 @@ class LLMManager:
             base_prompt = self.prompts.get("murderer", "")
         elif role == "detective":
             base_prompt = self.prompts.get("detective", "")
+        elif role == "alibi_agent":
+            base_prompt = self.prompts.get("alibi_agent", "")
         else:
             base_prompt = self.prompts.get("witness", "")
             

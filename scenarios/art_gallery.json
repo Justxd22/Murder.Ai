@@ -17,6 +17,7 @@
       "motive": "Theft of 'The Red Sunset'",
       "true_location": "Gallery Wine Cellar",
       "alibi_story": "Stocktaking in basement",
+      "alibi_id": "ALIBI-301",
       "phone_number": "+1-555-2101",
       "bio": "Sophisticated but in debt. Has been eyeing the collection."
     },
@@ -28,6 +29,7 @@
       "motive": "Contract dispute",
       "true_location": "Main Hall",
       "alibi_story": "Talking to guests",
+      "alibi_id": "ALIBI-302",
       "phone_number": "+1-555-2102",
       "bio": "Passionate and volatile. Felt Vincent was cheating her."
     },
@@ -39,6 +41,7 @@
       "motive": "Blackmail",
       "true_location": "Sculpture Garden",
       "alibi_story": "Smoking cigar",
+      "alibi_id": "ALIBI-303",
       "phone_number": "+1-555-2103",
       "bio": "Wealthy and secretive. Had a secret history with Vincent."
     },
@@ -50,6 +53,7 @@
       "motive": "None",
       "true_location": "Kitchen",
       "alibi_story": "Preparing hors d'oeuvres",
+      "alibi_id": "ALIBI-304",
       "phone_number": "+1-555-2104",
       "bio": "Hardworking. Just there to do a job."
     }

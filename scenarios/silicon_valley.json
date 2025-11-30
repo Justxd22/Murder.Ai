@@ -17,6 +17,7 @@
       "motive": "Embezzlement discovered",
       "true_location": "Crime scene",
       "alibi_story": "At home watching Netflix",
+      "alibi_id": "ALIBI-101",
       "phone_number": "+1-555-0101",
       "bio": "Detail-oriented and ambitious. Has been with the company since day one."
     },
@@ -28,6 +29,7 @@
       "motive": "None",
       "true_location": "2 blocks away",
       "alibi_story": "Working late on 5th floor",
+      "alibi_id": "ALIBI-102",
       "phone_number": "+1-555-0102",
       "bio": "Quiet and keeps to himself. Has a record for petty theft from 10 years ago."
     },
@@ -39,6 +41,7 @@
       "motive": "Inheritance dispute",
       "true_location": "Restaurant downtown",
       "alibi_story": "Dinner with friends",
+      "alibi_id": "ALIBI-103",
       "phone_number": "+1-555-0103",
       "bio": "Emotional and protective of the family legacy. Argued with Marcus recently."
     },
@@ -50,6 +53,7 @@
       "motive": "Corporate rivalry",
       "true_location": "Airport lounge",
       "alibi_story": "Catching a flight to NY",
+      "alibi_id": "ALIBI-104",
       "phone_number": "+1-555-0104",
       "bio": "Ruthless businessman. Recently lost a major contract to Marcus's firm."
     }

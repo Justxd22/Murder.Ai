@@ -30,8 +30,13 @@ class GameInstance:
         self.llm_manager.create_agent("detective", "detective", detective_context)
         
         # 2. Suspects
-        for suspect in self.scenario["suspects"]:
+        for i, suspect in enumerate(self.scenario["suspects"]):
             role = "murderer" if suspect["is_murderer"] else "witness"
+            
+            # Generate or retrieve Alibi ID
+            # In a real app, this should be in the JSON. For now, we synth it.
+            alibi_id = suspect.get("alibi_id", f"ALIBI-{100+i}")
+            suspect["alibi_id"] = alibi_id # Save back to scenario for tools lookup
             
             # Context for prompt
             context = {
@@ -40,11 +45,12 @@ class GameInstance:
                 "alibi_story": suspect["alibi_story"],
                 "bio": suspect["bio"],
                 "true_location": suspect["true_location"],
-                "phone_number": suspect.get("phone_number", "Unknown"), # Add phone number to context
+                "phone_number": suspect.get("phone_number", "Unknown"), 
+                "alibi_id": alibi_id, # Inject Alibi ID
                 
                 # Murderer specific
-                "method": self.scenario["title"], # Placeholder, scenario doesn't explicitly list 'method' field in plan, using title/weapon logic implied
-                "location": self.scenario["victim"].get("location", "the scene"), # Using generic
+                "method": self.scenario["title"], 
+                "location": self.scenario["victim"].get("location", "the scene"), 
                 "motive": suspect["motive"]
             }
             
@@ -87,7 +93,7 @@ class GameInstance:
             result = tools.get_dna_test(self.scenario, kwargs.get("evidence_id"))
         elif tool_name == "call_alibi":
             cost = 1
-            result = tools.call_alibi(self.scenario, kwargs.get("phone_number"))
+            result = tools.call_alibi(self.scenario, **kwargs)
         else:
             return {"error": f"Unknown tool: {tool_name}"}
             

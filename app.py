@@ -92,13 +92,21 @@ class GameSession:
             
         if action == "use_tool":
             tool_name = payload.get("tool")
-            arg = payload.get("input")
+            arg = payload.get("input") # Default for single-input tools
             
             kwargs = {}
             if tool_name == "get_location":
                 kwargs = {"phone_number": arg}
             elif tool_name == "call_alibi":
-                kwargs = {"phone_number": arg}
+                # Support both simple string (old) and structured (new)
+                if "alibi_id" in payload:
+                    arg = payload.get("alibi_id") # Update arg for formatter
+                    kwargs = {
+                        "alibi_id": arg,
+                        "question": payload.get("question")
+                    }
+                else:
+                    kwargs = {"phone_number": arg} # Fallback
             elif tool_name == "get_dna_test":
                 kwargs = {"evidence_id": arg}
             elif tool_name == "get_footage":
@@ -144,6 +152,12 @@ def format_tool_response(tool_name, arg, result, scenario):
                 return s
         return None
 
+    def find_by_alibi_id(aid):
+        for s in scenario["suspects"]:
+            if s.get("alibi_id") == aid:
+                return s
+        return None
+
     # Logic per tool
     if tool_name == "get_location":
         suspect = find_by_phone(arg)
@@ -166,7 +180,10 @@ def format_tool_response(tool_name, arg, result, scenario):
             html += str(result)
 
     elif tool_name == "call_alibi":
-        suspect = find_by_phone(arg)
+        suspect = find_by_phone(arg) # Try phone first
+        if not suspect:
+            suspect = find_by_alibi_id(arg) # Try ID
+            
         if suspect:
             suspect_id = suspect["id"]
             suspect_name = suspect["name"]

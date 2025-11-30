@@ -17,6 +17,7 @@
       "motive": "Jealousy",
       "true_location": "Coffee Shop Back Door",
       "alibi_story": "Gaming at home",
+      "alibi_id": "ALIBI-201",
       "phone_number": "+1-555-1101",
       "bio": "Possessive and recently dumped. Has been sending angry texts."
     },
@@ -28,6 +29,7 @@
       "motive": "Financial dispute",
       "true_location": "Bank deposit drop",
       "alibi_story": "Depositing cash",
+      "alibi_id": "ALIBI-202",
       "phone_number": "+1-555-1102",
       "bio": "Stressed about money. Owed Emma back pay."
     },
@@ -39,6 +41,7 @@
       "motive": "Promotion rivalry",
       "true_location": "Gym",
       "alibi_story": "Late night workout",
+      "alibi_id": "ALIBI-203",
       "phone_number": "+1-555-1103",
       "bio": "Competitive and ambitious. Wanted the shift lead position."
     },
@@ -50,6 +53,7 @@
       "motive": "Obsession",
       "true_location": "Bus stop across street",
       "alibi_story": "Waiting for bus",
+      "alibi_id": "ALIBI-204",
       "phone_number": "+1-555-1104",
       "bio": "Always there. Kind of creepy but harmless."
     }

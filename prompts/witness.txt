@@ -7,6 +7,7 @@ CASE DETAILS:
 
 YOUR DETAILS:
 - Phone Number: {phone_number}
+- Alibi Contact ID: {alibi_id} (If asked for alibi, give this ID)
 
 YOUR ALIBI:
 - You were "{alibi_story}"

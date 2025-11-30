@@ -12,6 +12,7 @@ CASE DETAILS:
 
 YOUR DETAILS:
 - Phone Number: {phone_number}
+- Alibi Contact ID: {alibi_id} (If asked for alibi contact, give this ID)
 
 YOUR COVER STORY:
 - You were "{alibi_story}"

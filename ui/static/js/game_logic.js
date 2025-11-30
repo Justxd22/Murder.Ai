@@ -31,10 +31,16 @@ async function sendAction(action, data) {
         // console.log("📥 API Response:", result);
         
         if (result && result.action) {
+            // Return result for local handling if needed
+            if (result.action === 'tool_error') {
+                return result; 
+            }
             handleServerMessage(result);
+            return result;
         }
     } catch (e) {
         console.error("Bridge Error:", e);
+        return { action: 'error', message: e.message };
     }
 }
 
@@ -349,13 +355,28 @@ function useTool(toolName) {
     const input = document.getElementById('modal-input');
     const promptText = document.getElementById('modal-prompt-text');
     
-    // Custom prompts
-    if (toolName === 'get_location') promptText.innerText = "Enter Target Phone Number:";
-    if (toolName === 'call_alibi') promptText.innerText = "Enter Witness Phone Number:";
-    if (toolName === 'get_dna_test') promptText.innerText = "Enter Evidence ID:";
-    if (toolName === 'get_footage') promptText.innerText = "Enter Camera Location:";
+    const section2 = document.getElementById('modal-section-2');
+    const input2 = document.getElementById('modal-input-2');
+    const promptText2 = document.getElementById('modal-prompt-text-2');
     
+    // Reset
+    section2.style.display = 'none';
     input.value = '';
+    input2.value = '';
+    
+    // Custom prompts
+    if (toolName === 'get_location') {
+        promptText.innerText = "Enter Target Phone Number:";
+    } else if (toolName === 'call_alibi') {
+        promptText.innerText = "Enter Alibi ID (Ask suspect):";
+        section2.style.display = 'block';
+        promptText2.innerText = "Question for Alibi:";
+    } else if (toolName === 'get_dna_test') {
+        promptText.innerText = "Enter Evidence ID:";
+    } else if (toolName === 'get_footage') {
+        promptText.innerText = "Enter Camera Location:";
+    }
+    
     modal.classList.add('active');
     input.focus();
 }
@@ -363,16 +384,69 @@ function useTool(toolName) {
 function submitTool() {
     const input = document.getElementById('modal-input');
     const value = input.value.trim();
+    const confirmBtn = document.getElementById('modal-confirm');
     
-    if (value && pendingTool) {
-        sendAction('use_tool', { tool: pendingTool, input: value });
-        closeModal();
+    if (!pendingTool) return;
+    
+    let payload = null;
+    
+    if (pendingTool === 'call_alibi') {
+        const input2 = document.getElementById('modal-input-2');
+        const value2 = input2.value.trim();
+        
+        if (value && value2) {
+            payload = { 
+                tool: pendingTool, 
+                alibi_id: value,
+                question: value2
+            };
+        } else {
+            showModalError("Both fields are required.");
+            return;
+        }
+    } else {
+        if (value) {
+            payload = { tool: pendingTool, input: value };
+        }
     }
+    
+    if (payload) {
+        // Loading state
+        confirmBtn.innerText = "PROCESSING...";
+        confirmBtn.disabled = true;
+        
+        sendAction('use_tool', payload).then(result => {
+            confirmBtn.innerText = "SUBMIT";
+            confirmBtn.disabled = false;
+            
+            if (result && result.action === 'tool_error') {
+                showModalError(result.data.message);
+            } else {
+                closeModal();
+            }
+        });
+    }
+}
+
+function showModalError(msg) {
+    let errDiv = document.getElementById('modal-error');
+    if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = 'modal-error';
+        errDiv.style.color = 'red';
+        errDiv.style.marginTop = '10px';
+        errDiv.style.textAlign = 'right';
+        errDiv.style.fontWeight = 'bold';
+        document.querySelector('.modal-content').appendChild(errDiv);
+    }
+    errDiv.innerText = msg;
 }
 
 function closeModal() {
     document.getElementById('tool-modal').classList.remove('active');
     pendingTool = null;
+    const errDiv = document.getElementById('modal-error');
+    if (errDiv) errDiv.innerText = ''; 
 }
 
 // --- Listeners ---

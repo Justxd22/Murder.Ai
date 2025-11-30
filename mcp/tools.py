@@ -1,5 +1,6 @@
 import time
 import re
+from game.llm_manager import LLMManager
 
 def normalize_phone(phone):
     """Strips non-digit characters from phone number for comparison."""
@@ -124,35 +125,57 @@ def get_dna_test(case_data, evidence_id: str) -> dict:
         "notes": dna["notes"]
     }
 
-def call_alibi(case_data, phone_number: str) -> dict:
-    """Call an alibi witness."""
+def call_alibi(case_data, alibi_id: str = None, question: str = None, phone_number: str = None) -> dict:
+    """
+    Call an alibi witness using an LLM agent.
+    Requires `alibi_id` and `question`.
+    """
+    print(f"Calling alibi with alibi_id={alibi_id}, phone_number={phone_number}, question={question}")
+    # 1. Find suspect with this alibi_id
+    target_suspect = None
+    if alibi_id:
+        for s in case_data["suspects"]:
+            if s.get("alibi_id") == alibi_id:
+                target_suspect = s
+                break
     
-    # Find alibi in database - Fuzzy Match
-    alibi = None
-    target_digits = normalize_phone(phone_number)
-    
-    if not target_digits:
-         return {"error": "Invalid phone number."}
+    if not target_suspect:
+        # Fallback: Try phone number for legacy support or wrong input
+        if phone_number:
+             # (Legacy logic skipped for brevity, encourage Alibi ID)
+             return {"error": "Please use the unique Alibi ID provided by the suspect."}
+        return {"error": "Invalid Alibi ID."}
 
-    for suspect_alibi in case_data.get("evidence", {}).get("alibis", {}).values():
-        contact_digits = normalize_phone(suspect_alibi.get("contact"))
-        if contact_digits and (target_digits.endswith(contact_digits) or contact_digits.endswith(target_digits)):
-            alibi = suspect_alibi
-            break
+    if not question:
+        return {"error": "You must ask a question."}
+
+    # 2. Get alibi details
+    alibi_key = f"{target_suspect['id']}_alibi"
+    alibi_data = case_data.get("evidence", {}).get("alibis", {}).get(alibi_key)
+
+    if not alibi_data:
+        return {"error": "No alibi contact record found for this suspect."}
+
+    # 3. Create LLM Agent for Alibi
+    llm = LLMManager()
     
-    if not alibi:
-        return {"error": "Number not found or no alibi associated."}
+    context = {
+        "suspect_name": target_suspect["name"],
+        "truth_context": alibi_data.get("truth", "Unknown"),
+        "suspect_story": target_suspect.get("alibi_story", "Unknown"),
+        "relationship": alibi_data.get("contact_name", "Acquaintance"),
+        "question": question
+    }
     
-    # If alibi is truthful, confirm story
-    if alibi["truth"].startswith("Telling truth"):
-        response = f"Yes, I can confirm they were with me at that time."
-    else:
-        # Lying/Uncertain
-        response = f"Uh... yes, they were with me. Definitely."
+    # Create a temporary agent
+    agent_id = f"alibi_{alibi_id}"
+    # Ensure LLMManager supports 'alibi_agent' role (update _load_prompts if needed)
+    llm.create_agent(agent_id, "alibi_agent", context)
+    
+    response = llm.get_response(agent_id, question)
     
     return {
-        "contact_name": alibi.get("contact_name", "Unknown"),
+        "contact_name": alibi_data.get("contact_name", "Unknown"),
         "response": response,
-        "confidence": "High" if alibi["verifiable"] else "Uncertain",
-        "red_flags": [] if alibi["verifiable"] else ["Hesitant response", "No details provided"]
+        "confidence": "High" if alibi_data.get("verifiable") else "Uncertain"
     }
