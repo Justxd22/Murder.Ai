@@ -11,11 +11,12 @@
 - add ai
 - mode selection
 - numbered steps to launch game
-
-
-# Doing
-
-- sound/music
 - video embeded
 - divider
 - mcp showcase with title "try tools without playing"
+
+
+
+# Doing
+- README
+- sound/music

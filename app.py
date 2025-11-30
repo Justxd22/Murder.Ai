@@ -434,11 +434,19 @@ def start_game_from_ui(case_name, mode, voice):
     
     init_data = session.start(difficulty, mode_slug, voice)
     
+    # Extract data for tools
+    phones = [s["phone_number"] for s in init_data["data"]["scenario"]["suspects"]]
+    cameras = init_data["data"]["available_cameras"]
+    suspects = [s["name"] for s in init_data["data"]["scenario"]["suspects"]]
+    
     # Return visible updates
     return (
         gr.update(visible=False), # Hide selector row
         gr.update(visible=True),  # Show game frame
-        json.dumps(init_data)     # Send init data to bridge
+        json.dumps(init_data),    # Send init data to bridge
+        gr.update(choices=phones, value=phones[0] if phones else None),
+        gr.update(choices=cameras, value=cameras[0] if cameras else None),
+        gr.update(choices=suspects, value=suspects[0] if suspects else None)
     )
 
 css = """
@@ -505,11 +513,96 @@ with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
         
     auto_refresh.change(fn=toggle_timer, inputs=auto_refresh, outputs=log_timer)
 
+    # --- Footer / Showcase ---
+    gr.Markdown("---")
+    gr.Markdown("### 🎥 How to Play (Demo)")
+    gr.HTML('<iframe width="100%" height="400" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>')
+        
+    gr.Markdown("# 🛠️ Try MCP Tools Directly")
+    gr.Markdown("*Note: Start a game first to populate these tools.*")
+    
+    with gr.Tabs():
+        with gr.Tab("📍 Location"):
+            loc_phone = gr.Radio(label="Select Phone Number", choices=[], interactive=True)
+            loc_btn = gr.Button("Get Location")
+            loc_out = gr.JSON(label="Result")
+            
+        with gr.Tab("📹 Footage"):
+            foot_cam = gr.Radio(label="Select Camera", choices=[], interactive=True)
+            foot_btn = gr.Button("Get Footage")
+            foot_out = gr.JSON(label="Result")
+            
+        with gr.Tab("🧬 DNA"):
+            dna_id = gr.Textbox(label="Evidence ID")
+            dna_btn = gr.Button("Test DNA")
+            dna_out = gr.JSON(label="Result")
+            
+        with gr.Tab("📞 Alibi"):
+            alibi_id = gr.Textbox(label="Alibi ID")
+            alibi_q = gr.Textbox(label="Question", value="Where were they?")
+            alibi_btn = gr.Button("Call Alibi")
+            alibi_out = gr.JSON(label="Result")
+            
+        with gr.Tab("💬 Interrogate"):
+            int_suspect = gr.Radio(label="Select Suspect", choices=[], interactive=True)
+            int_q = gr.Textbox(label="Question", value="Where were you?")
+            int_btn = gr.Button("Interrogate")
+            int_out_text = gr.Markdown(label="Response")
+            int_out_audio = gr.Audio(label="Voice Response", autoplay=True)
+
+    # --- Event Handlers for Tools ---
+    
+    def wrap_tool(tool_name, *args):
+        if not session.game: return {"error": "Start game first"}
+        
+        kwargs = {}
+        if tool_name == "get_location": kwargs = {"phone_number": args[0]}
+        elif tool_name == "get_footage": kwargs = {"location": args[0]}
+        elif tool_name == "get_dna_test": kwargs = {"evidence_id": args[0]}
+        elif tool_name == "call_alibi": kwargs = {"alibi_id": args[0], "question": args[1]}
+        
+        return session.game.use_tool(tool_name, **kwargs)
+
+    loc_btn.click(lambda p: wrap_tool("get_location", p), inputs=loc_phone, outputs=loc_out)
+    foot_btn.click(lambda c: wrap_tool("get_footage", c), inputs=foot_cam, outputs=foot_out)
+    dna_btn.click(lambda e: wrap_tool("get_dna_test", e), inputs=dna_id, outputs=dna_out)
+    alibi_btn.click(lambda i, q: wrap_tool("call_alibi", i, q), inputs=[alibi_id, alibi_q], outputs=alibi_out)
+    
+    def wrap_chat(suspect_name, question):
+        if not session.game: return "Start game first", None
+        # Find ID from name
+        s_id = next((s["id"] for s in session.game.scenario["suspects"] if s["name"] == suspect_name), None)
+        if not s_id: return "Suspect not found", None
+        
+        resp = session.game.question_suspect(s_id, question)
+        
+        # Audio
+        audio_path = None
+        suspect = next((s for s in session.game.scenario["suspects"] if s["id"] == s_id), None)
+        
+        # Clean text
+        cleaned = resp
+        if cleaned.strip().startswith('(') and ')' in cleaned:
+            cleaned = cleaned[cleaned.find(')')+1:].strip()
+        cleaned = cleaned.replace('*', '').strip()
+        
+        if suspect and "voice_id" in suspect and cleaned:
+            audio_bytes = session.game.voice_manager.generate_audio(cleaned, suspect["voice_id"])
+            if audio_bytes:
+                import tempfile
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
+                    fp.write(audio_bytes)
+                    audio_path = fp.name
+            
+        return resp, audio_path
+
+    int_btn.click(wrap_chat, inputs=[int_suspect, int_q], outputs=[int_out_text, int_out_audio])
+
     # Start Game Event
     start_btn.click(
         fn=start_game_from_ui,
         inputs=[case_dropdown, game_mode, voice_toggle],
-        outputs=[setup_col, game_group, bridge_output]
+        outputs=[setup_col, game_group, bridge_output, loc_phone, foot_cam, int_suspect]
     )
     
     # Bridge Logic with Logging (Legacy/Fallback)
