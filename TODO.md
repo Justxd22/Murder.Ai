@@ -10,3 +10,8 @@
 - sound/music
 - eleven labs tts/voice
 - typing effect
+- mode selection
+- numbered steps to launch game
+- video embeded
+- divider
+- mcp showcase with title "try tools without playing"

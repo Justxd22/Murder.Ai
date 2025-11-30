@@ -195,7 +195,7 @@ body, html {
     grid-row: 2 / 3;
     grid-column: 2 / 3;
     position: relative;
-    /* background-image: url('data:image/svg+xml;base64,PHN2Zy4uLz4='); NO SVG HERE, causes 404 if broken */
+    background-image: url('/static/assets/sand.jpeg');
     background-color: #c08848;
     box-shadow: inset 0 0 50px rgba(0,0,0,0.6);
     
@@ -327,10 +327,10 @@ body, html {
 #chat-log {
     padding: 20px;
     overflow-y: auto;
-    color: #ddd;
-    background: 
-        linear-gradient(rgba(18, 16, 16, 0.95), rgba(18, 16, 16, 0.95));
-        /* Removed faulty SVG URL here too */
+    color: #ffffff;
+    background:
+            linear-gradient(rgba(18, 16, 16, 0.8), rgba(18, 16, 16, 0.8)),
+            url('/static/assets/paper-texture.jpeg');
 }
 
 .chat-message {
@@ -338,6 +338,7 @@ body, html {
     padding: 10px;
     border-left: 3px solid #555;
     animation: typewriter 0.5s ease-out;
+    font-size: 1.2rem;
 }
 
 .chat-message.detective {
@@ -353,7 +354,7 @@ body, html {
 .chat-message.system {
     border-left-color: #4aff4a;
     font-style: italic;
-    color: #888;
+    color: #ffffff91;
 }
 
 #chat-input-area {
