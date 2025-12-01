@@ -419,7 +419,7 @@ def get_game_iframe():
     <iframe 
         id="game-iframe"
         srcdoc="{html_content_escaped}"
-        style="width: 100%; height: 95vh; border: none;"
+        style="width: 100%; height: 50vh; border: none;"
         allow="autoplay; fullscreen"
     ></iframe>
     """
