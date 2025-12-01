@@ -451,7 +451,7 @@ def start_game_from_ui(case_name, mode, voice):
 
 css = """
 #bridge-input, #bridge-output, #log-input { display: none !important; }
-.gradio-container { padding: 0 !important; max-width: 100% !important; height: 100vh !important; display: flex; flex-direction: column; }
+.gradio-container { padding: 0 !important; max-width: 100% !important; display: flex; flex-direction: column; }
 #game-frame-container { flex-grow: 1; height: 100% !important; border: none; overflow: hidden; padding: 0; }
 #game-frame-container > .html-container { height: 100% !important; display: flex; flex-direction: column; }
 #game-frame-container .prose { flex-grow: 1; height: 100% !important; max-width: 100% !important; }
@@ -460,7 +460,7 @@ footer { display: none !important; }
 .gradio-container { overflow-y: auto !important; }
 """
 
-with gr.Blocks(title="Murder.Ai", fill_height=True) as demo:
+with gr.Blocks(title="Murder.Ai") as demo:
     gr.HTML(f"<style>{css}</style>")
     
     # --- Initial Setup Screen ---
