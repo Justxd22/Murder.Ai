@@ -24,7 +24,7 @@ The game offers two distinct modes:
 2. AI Spectator Mode: An autonomous "AI Detective" agent takes control, analyzing the board state, forming hypotheses, and executing actions to solve the case
     while the user watches its reasoning process.
 
-This game was desgined with dynamic Stories/Cases in mind, Each case define Suspects role/type/genre and the backend assigns Generated profile to match the suspect theme, Custom voice to match the suspect vibe, For example a suspect name "Ex-Boyfriend" is assigned Angry person with black hoodie lol
+This game was desgined with dynamic Stories/Cases in mind, Each case define Suspects role/type/genre and the backend assigns Generated profile to match the suspect theme, Custom voice to match the suspect vibe, For example a suspect name "Ex-Boyfriend" is assigned Angry person with black hoodie lol, Also investigation tools were desgined as an MCP to allow easy access for each model to use in the investigation.
 
 Rember **Each Game = New Lies/Scenaro.**
 
@@ -62,8 +62,8 @@ To enable seamless communication between the custom JS frontend and the Python b
 The game leverages a multi-model architecture to create diverse suspect behaviors:
 *   **Gemini 2.5 Flash / Pro:** Powers the high-speed suspect interactions and conversational depth.
 *   **Gemini 3 Pro:** Acts as the "Lead Detective" in Spectator Mode, capable of complex reasoning and chain-of-thought deduction.
-*   **Claude Haiku 4.5:** Handles specific suspect personas for variety (Simulated).
-*   **Google Veo 3.1:** Used for generating character assets and video context (Simulated/Placeholder).
+*   **Claude Haiku 4.5:** Handles specific suspect personas for variety.
+*   **Google Veo 3.1:** Used for generating character assets and video context.
 
 ### 🎙️ Voice Integration
 
